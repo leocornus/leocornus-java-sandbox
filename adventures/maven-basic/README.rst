@@ -27,8 +27,8 @@ mvn archetype:generate -DgroupId=com.leocorn.sandbox.maven -DartifactId=basic-ta
 
 Here are the simpl tasks:
 
-$ cd basic-tasks
-$ mvn compile
-$ mvn test
-$ mvn package
-$ mvn -DskipTests package
+* cd basic-tasks
+* mvn compile
+* mvn test
+* mvn package
+* mvn -DskipTests package
