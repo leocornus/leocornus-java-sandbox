@@ -14,7 +14,10 @@ Pre-request
 We will need the following:
 
 * JDK, this is a java project.
-* Apache Maven.
+* Apache Maven, it will be just a simple download and de-compress.
+  Java binary will be checked JAVA_HOME and the first choice.
+  If there is no JAVA_HOME the output of command **which java** will 
+  be used.
 
 That's it!
 
