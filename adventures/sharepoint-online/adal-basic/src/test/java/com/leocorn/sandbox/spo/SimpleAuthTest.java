@@ -35,17 +35,17 @@ public class SimpleAuthTest extends TestCase {
         return new TestSuite(SimpleAuthTest.class);
     }
 
+    /**
+     * simple test case to login and get access token.
+     */
     public void testGetToken() {
 
         // load the config file.
         Properties conf = new Properties();
-        String fileName = "conf/spo.properties";
-        InputStream input = null;
         ExecutorService service = null;
 
         try {
-            input = getClass().getClassLoader().getResourceAsStream(fileName);
-            conf.load(input);
+            conf = loadConfig();
 
             assertEquals("sharepoint online", conf.getProperty("name"));
 
@@ -73,15 +73,54 @@ public class SimpleAuthTest extends TestCase {
         } catch (ExecutionException ix){
             ix.printStackTrace();
         } finally{
-            if(input != null){
+            // shutdown the executor!
+            service.shutdown();
+        }
+    }
+
+    /**
+     * a utility method to load configuration files.
+     */
+    private Properties loadConfig() throws IOException {
+        /**
+         * file basic.properties will have the following content:
+         */
+        String filename = "conf/spo.properties";
+        String localFilename = "conf/local.properties";
+        Properties conf = new Properties();
+        InputStream input = null;
+
+        try {
+            // load the basic properties.
+            input = getClass().getClassLoader().getResourceAsStream(filename);
+            Properties basic = new Properties();
+            basic.load(input);
+            input.close();
+            conf.putAll(basic);
+
+            // load the local properties.
+            input = getClass().getClassLoader().getResourceAsStream(localFilename);
+            if(input != null) {
+                Properties local = new Properties();
+                local.load(input);
+                input.close();
+                conf.putAll(local);
+            } else {
+                // null input stream means the file is not exist.
+                // just skip it!
+            }
+
+            assertEquals("sharepoint online", conf.getProperty("name"));
+
+            return conf;
+        } finally{
+            if(input!=null){
                 try {
                     input.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
-            // shutdown the executor!
-            service.shutdown();
         }
     }
 }
