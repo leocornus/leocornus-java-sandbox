@@ -12,6 +12,7 @@ import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ExecutionException;
 
 import javax.naming.ServiceUnavailableException;
 
@@ -40,15 +41,37 @@ public class SimpleAuthTest extends TestCase {
         Properties conf = new Properties();
         String fileName = "conf/spo.properties";
         InputStream input = null;
+        ExecutorService service = null;
 
         try {
             input = getClass().getClassLoader().getResourceAsStream(fileName);
             conf.load(input);
 
-            //System.out.println(conf.getProperty("keyOne"));
             assertEquals("sharepoint online", conf.getProperty("name"));
+
+            AuthenticationResult result;
+            AuthenticationContext context;
+
+            // try to authenicate and acquire token.
+            service = Executors.newFixedThreadPool(1);
+
+            context = new AuthenticationContext(conf.getProperty("authority"),
+                                                false, service);
+            Future<AuthenticationResult> future = 
+                context.acquireToken(conf.getProperty("target.source"),
+                                     conf.getProperty("application.id"),
+                                     conf.getProperty("username"),
+                                     conf.getProperty("password"), null);
+            result = future.get();
+            // verify the token.
+            assertNotNull(result);
+            System.out.println(result.getAccessToken());
         } catch (IOException ex) {
             ex.printStackTrace();
+        } catch (InterruptedException ix){
+            ix.printStackTrace();
+        } catch (ExecutionException ix){
+            ix.printStackTrace();
         } finally{
             if(input != null){
                 try {
@@ -57,6 +80,8 @@ public class SimpleAuthTest extends TestCase {
                     e.printStackTrace();
                 }
             }
+            // shutdown the executor!
+            service.shutdown();
         }
     }
 }
