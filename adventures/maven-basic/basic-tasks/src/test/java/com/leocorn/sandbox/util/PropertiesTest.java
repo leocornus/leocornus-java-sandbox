@@ -68,7 +68,20 @@ public class PropertiesTest extends TestCase {
      */
     public void testMergeConfig() {
 
+        /**
+         * file basic.properties will have the following content:
+         *
+         * keyOne = valueOne
+         * key.two = valueTwo
+         */
         String filename = "conf/basic.properties";
+        /**
+         * file local.properties will have the following content:
+         *
+         * key.two = localTwo
+         *
+         * we will not save local.properties in the Git repository.
+         */
         String localFilename = "conf/local.properties";
         Properties conf = new Properties();
         InputStream input = null;
