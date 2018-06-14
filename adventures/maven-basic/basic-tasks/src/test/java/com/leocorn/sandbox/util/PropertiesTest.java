@@ -47,6 +47,52 @@ public class PropertiesTest extends TestCase {
 
             //System.out.println(conf.getProperty("keyOne"));
             assertEquals("valueOne", conf.getProperty("keyOne"));
+            assertEquals("valueTwo", conf.getProperty("key.two"));
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        } finally{
+            if(input!=null){
+                try {
+                    input.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    /**
+     * test the merge function for configuration files.
+     * The simple case is we will use local.properties to overwrite the 
+     * values in all other properties files.
+     */
+    public void testMergeConfig() {
+
+        String filename = "conf/basic.properties";
+        String localFilename = "conf/local.properties";
+        Properties conf = new Properties();
+        InputStream input = null;
+
+        try {
+            // load the basic properties.
+            input = getClass().getClassLoader().getResourceAsStream(filename);
+            Properties basic = new Properties();
+            basic.load(input);
+            input.close();
+            conf.putAll(basic);
+
+            // verify
+            assertEquals("valueTwo", conf.getProperty("key.two"));
+
+            // load the local properties.
+            input = getClass().getClassLoader().getResourceAsStream(localFilename);
+            Properties local = new Properties();
+            local.load(input);
+            input.close();
+            conf.putAll(local);
+            // verify.
+            assertEquals("localTwo", conf.getProperty("key.two"));
+
         } catch (IOException ex) {
             ex.printStackTrace();
         } finally{
