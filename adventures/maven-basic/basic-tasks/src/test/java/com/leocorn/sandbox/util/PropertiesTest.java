@@ -86,13 +86,17 @@ public class PropertiesTest extends TestCase {
 
             // load the local properties.
             input = getClass().getClassLoader().getResourceAsStream(localFilename);
-            Properties local = new Properties();
-            local.load(input);
-            input.close();
-            conf.putAll(local);
-            // verify.
-            assertEquals("localTwo", conf.getProperty("key.two"));
-
+            if(input != null) {
+                Properties local = new Properties();
+                local.load(input);
+                input.close();
+                conf.putAll(local);
+                // verify.
+                assertEquals("localTwo", conf.getProperty("key.two"));
+            } else {
+                // null input stream means the file is not exist.
+                // just skip it!
+            }
         } catch (IOException ex) {
             ex.printStackTrace();
         } finally{
