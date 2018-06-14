@@ -35,6 +35,8 @@ public class PropertiesTest extends TestCase {
     public void testReadConfig() {
 
         // we will read the properties file from classpath.
+        // it will be stored in folder
+        // - src/main/resources
         String filename = "conf/basic.properties";
         Properties conf = new Properties();
         InputStream input = null;
@@ -43,7 +45,8 @@ public class PropertiesTest extends TestCase {
             input = getClass().getClassLoader().getResourceAsStream(filename);
             conf.load(input);
 
-            System.out.println(conf.getProperty("keyOne"));
+            //System.out.println(conf.getProperty("keyOne"));
+            assertEquals("valueOne", conf.getProperty("keyOne"));
         } catch (IOException ex) {
             ex.printStackTrace();
         } finally{
