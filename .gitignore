@@ -26,3 +26,6 @@ hs_err_pid*
 
 # for maven project.
 **/target
+
+# ignore local properties.
+**/local.properties
