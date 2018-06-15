@@ -40,16 +40,23 @@ public class SimpleAuthTest extends TestCase {
      */
     public void testGetToken() {
 
+        AuthenticationResult result = getAuthResult();
+        assertNotNull(result);
+        System.out.println(result.getAccessToken());
+    }
+
+    private AuthenticationResult getAuthResult() {
+
         // load the config file.
         Properties conf = new Properties();
         ExecutorService service = null;
+        AuthenticationResult result = null;
 
         try {
             conf = loadConfig();
 
             assertEquals("sharepoint online", conf.getProperty("name"));
 
-            AuthenticationResult result;
             AuthenticationContext context;
 
             // try to authenicate and acquire token.
@@ -63,9 +70,6 @@ public class SimpleAuthTest extends TestCase {
                                      conf.getProperty("username"),
                                      conf.getProperty("password"), null);
             result = future.get();
-            // verify the token.
-            assertNotNull(result);
-            System.out.println(result.getAccessToken());
         } catch (IOException ex) {
             ex.printStackTrace();
         } catch (InterruptedException ix){
@@ -76,6 +80,8 @@ public class SimpleAuthTest extends TestCase {
             // shutdown the executor!
             service.shutdown();
         }
+
+        return result;
     }
 
     /**
