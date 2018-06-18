@@ -25,9 +25,17 @@ import junit.framework.TestSuite;
 
 public class SimpleAuthTest extends TestCase {
 
+
+    private Properties conf = new Properties();
+
     public SimpleAuthTest(String testName) {
 
         super(testName);
+        try {
+            conf = loadConfig();
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static Test suite() {
@@ -39,8 +47,8 @@ public class SimpleAuthTest extends TestCase {
 
         String accessToken = getAuthResult().getAccessToken();
 
-        URL url = new URL("https://csagrporg.sharepoint.com/sites/QADocBoxMig/_api/web/GetFolderByServerRelativeUrl('Customer%20Group%20K/Karl%20Dungs%20Inc%20-%200004507796/000070008273')/files");
-        //URL url = new URL("https://csagrporg.sharepoint.com/sites/QADocBoxMig/_api/");
+        URL url = new URL(conf.getProperty("target.source") + 
+                          conf.getProperty("sharepoint.site") + "/_api/web/GetFolderByServerRelativeUrl('Customer%20Group%20K/Karl%20Dungs%20Inc%20-%200004507796/000070008273')/files");
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
         conn.setRequestMethod("GET");
@@ -82,12 +90,10 @@ public class SimpleAuthTest extends TestCase {
     private AuthenticationResult getAuthResult() {
 
         // load the config file.
-        Properties conf = new Properties();
         ExecutorService service = null;
         AuthenticationResult result = null;
 
         try {
-            conf = loadConfig();
 
             assertEquals("sharepoint online", conf.getProperty("name"));
 
