@@ -35,6 +35,40 @@ public class SimpleAuthTest extends TestCase {
         return new TestSuite(SimpleAuthTest.class);
     }
 
+    public void testListFiles() throws Exception {
+
+        String accessToken = getAuthResult().getAccessToken();
+
+        URL url = new URL("https://csagrporg.sharepoint.com/sites/QADocBoxMig/_api/web/GetFolderByServerRelativeUrl('Customer%20Group%20K/Karl%20Dungs%20Inc%20-%200004507796/000070008273')/files");
+        //URL url = new URL("https://csagrporg.sharepoint.com/sites/QADocBoxMig/_api/");
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        conn.setRequestMethod("GET");
+        conn.setRequestProperty("Authorization", "Bearer " + accessToken);
+        conn.setRequestProperty("Accept","application/json");
+
+        int httpResponseCode = conn.getResponseCode();
+        if(httpResponseCode == 200) {
+            BufferedReader in = null;
+            StringBuilder response;
+            try{
+                in = new BufferedReader(
+                        new InputStreamReader(conn.getInputStream()));
+                String inputLine;
+                response = new StringBuilder();
+                while ((inputLine = in.readLine()) != null) {
+                    response.append(inputLine);
+                }
+            } finally {
+                in.close();
+            }
+            System.out.println(response.toString());
+        } else {
+            System.out.println(String.format("Connection returned HTTP code: %s with message: %s",
+                    httpResponseCode, conn.getResponseMessage()));
+        }
+    }
+
     /**
      * simple test case to login and get access token.
      */
