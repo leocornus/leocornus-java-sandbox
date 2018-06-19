@@ -20,6 +20,7 @@ import com.microsoft.aad.adal4j.AuthenticationContext;
 import com.microsoft.aad.adal4j.AuthenticationResult;
 
 import org.json.JSONObject;
+import org.json.JSONArray;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -73,7 +74,13 @@ public class SimpleAuthTest extends TestCase {
                 in.close();
             }
             JSONObject json = new JSONObject(response.toString());
-            System.out.println(json.toString(2));
+            //System.out.println(json.toString(2));
+            System.out.println(json.getString("odata.metadata"));
+            JSONArray jsonArray = json.getJSONArray("value");
+            for (int index = 0; index < jsonArray.length(); index++) {
+
+                System.out.println(jsonArray.getJSONObject(index).getString("Title"));
+            }
         } else {
             System.out.println(String.format("Connection returned HTTP code: %s with message: %s",
                     httpResponseCode, conn.getResponseMessage()));
