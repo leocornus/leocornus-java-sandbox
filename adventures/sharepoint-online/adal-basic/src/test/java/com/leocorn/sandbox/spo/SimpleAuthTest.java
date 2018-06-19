@@ -19,6 +19,8 @@ import javax.naming.ServiceUnavailableException;
 import com.microsoft.aad.adal4j.AuthenticationContext;
 import com.microsoft.aad.adal4j.AuthenticationResult;
 
+import org.json.JSONObject;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -70,7 +72,8 @@ public class SimpleAuthTest extends TestCase {
             } finally {
                 in.close();
             }
-            System.out.println(response.toString());
+            JSONObject json = new JSONObject(response.toString());
+            System.out.println(json.toString(2));
         } else {
             System.out.println(String.format("Connection returned HTTP code: %s with message: %s",
                     httpResponseCode, conn.getResponseMessage()));
