@@ -49,9 +49,22 @@ public class SimpleAuthTest extends TestCase {
     public void testListFiles() throws Exception {
 
         String accessToken = getAuthResult().getAccessToken();
+        String apiUri = "/_api/web/GetFolderByServerRelativeUrl('Customer%20Group%20K/Karl%20Dungs%20Inc%20-%200004507796/000070008273')/files";
+
+        JSONObject json = new JSONObject(getResponse(accessToken, apiUri));
+        System.out.println(json.toString(2));
+        System.out.println(json.getString("odata.metadata"));
+        JSONArray jsonArray = json.getJSONArray("value");
+        for (int index = 0; index < jsonArray.length(); index++) {
+
+            System.out.println(jsonArray.getJSONObject(index).getString("Title"));
+        }
+    }
+
+    private String getResponse(String accessToken, String apiUri) throws Exception {
 
         URL url = new URL(conf.getProperty("target.source") + 
-                          conf.getProperty("sharepoint.site") + "/_api/web/GetFolderByServerRelativeUrl('Customer%20Group%20K/Karl%20Dungs%20Inc%20-%200004507796/000070008273')/files");
+                          conf.getProperty("sharepoint.site") + apiUri);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
         conn.setRequestMethod("GET");
@@ -70,20 +83,14 @@ public class SimpleAuthTest extends TestCase {
                 while ((inputLine = in.readLine()) != null) {
                     response.append(inputLine);
                 }
+                return response.toString();
             } finally {
                 in.close();
-            }
-            JSONObject json = new JSONObject(response.toString());
-            //System.out.println(json.toString(2));
-            System.out.println(json.getString("odata.metadata"));
-            JSONArray jsonArray = json.getJSONArray("value");
-            for (int index = 0; index < jsonArray.length(); index++) {
-
-                System.out.println(jsonArray.getJSONObject(index).getString("Title"));
             }
         } else {
             System.out.println(String.format("Connection returned HTTP code: %s with message: %s",
                     httpResponseCode, conn.getResponseMessage()));
+            return null;
         }
     }
 
