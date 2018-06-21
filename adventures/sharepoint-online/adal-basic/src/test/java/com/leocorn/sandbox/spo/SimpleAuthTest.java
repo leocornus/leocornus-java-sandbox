@@ -49,8 +49,10 @@ public class SimpleAuthTest extends TestCase {
     public void testListFiles() throws Exception {
 
         String accessToken = getAuthResult().getAccessToken();
+        // view a file properties, which will have all metadata.
+        String apiUri = "/_api/web/GetFolderByServerRelativeUrl('Customer%20Group%20K/Karl%20Dungs%20Inc%20-%200004507796/000070008273')/Files('0000125314_QIP_0000157406.pdf')/Properties";
         // download a file.
-        String apiUri = "/_api/web/GetFolderByServerRelativeUrl('Customer%20Group%20K/Karl%20Dungs%20Inc%20-%200004507796/000070008273')/Files('0000125314_QIP_0000157406.pdf')";
+        //String apiUri = "/_api/web/GetFolderByServerRelativeUrl('Customer%20Group%20K/Karl%20Dungs%20Inc%20-%200004507796/000070008273')/Files('0000125314_QIP_0000157406.pdf')/$value";
         // /0000125314_QIP_0000157406.pdf')";
         // list of files.
         //String apiUri = "/_api/web/GetFolderByServerRelativeUrl('Customer%20Group%20K/Karl%20Dungs%20Inc%20-%200004507796/000070008273')/files";
@@ -63,7 +65,9 @@ public class SimpleAuthTest extends TestCase {
                         conf.getProperty("sharepoint.site") + apiUri;
         System.out.println(apiUrl);
 
-        JSONObject json = new JSONObject(getResponse(accessToken, apiUrl));
+        String res = getResponse(accessToken, apiUrl);
+        System.out.println(res);
+        JSONObject json = new JSONObject(res);
         // print out the JSON with 2 white spaces as indention.
         System.out.println(json.toString(2));
         //System.out.println(json.getString("odata.metadata"));
@@ -95,8 +99,8 @@ public class SimpleAuthTest extends TestCase {
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
         conn.setRequestProperty("Authorization", "Bearer " + accessToken);
-        //conn.setRequestProperty("Accept","application/json;odata=verbose;");
-        conn.setRequestProperty("Accept","application/json;");
+        conn.setRequestProperty("Accept","application/json;odata=verbose;");
+        //conn.setRequestProperty("Accept","application/json;");
         //conn.setRequestProperty("ContentType","application/json;odata=verbose;");
         //conn.connect();
 
