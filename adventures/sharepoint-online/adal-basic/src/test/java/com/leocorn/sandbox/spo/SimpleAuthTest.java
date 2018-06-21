@@ -49,14 +49,24 @@ public class SimpleAuthTest extends TestCase {
     public void testListFiles() throws Exception {
 
         String accessToken = getAuthResult().getAccessToken();
+        // download a file.
+        String apiUri = "/_api/web/GetFolderByServerRelativeUrl('Customer%20Group%20K/Karl%20Dungs%20Inc%20-%200004507796/000070008273')/Files('0000125314_QIP_0000157406.pdf')";
+        // /0000125314_QIP_0000157406.pdf')";
         // list of files.
         //String apiUri = "/_api/web/GetFolderByServerRelativeUrl('Customer%20Group%20K/Karl%20Dungs%20Inc%20-%200004507796/000070008273')/files";
         // list of folders.
-        String apiUri = "/_api/web/GetFolderByServerRelativeUrl('Customer%20Group%20K/Karl%20Dungs%20Inc%20-%200004507796')/folders";
+        //String apiUri = "/_api/web/GetFolderByServerRelativeUrl('Customer%20Group%20K/Karl%20Dungs%20Inc%20-%200004507796')/folders";
+        // get metadata for a fodler.
+        //String apiUri = "/_api/web/GetFolderByServerRelativeUrl('Customer%20Group%20K/Karl%20Dungs%20Inc%20-%200004507796')";
 
-        JSONObject json = new JSONObject(getResponse(accessToken, apiUri));
+        String apiUrl = conf.getProperty("target.source") + 
+                        conf.getProperty("sharepoint.site") + apiUri;
+        System.out.println(apiUrl);
+
+        JSONObject json = new JSONObject(getResponse(accessToken, apiUrl));
+        // print out the JSON with 2 white spaces as indention.
         System.out.println(json.toString(2));
-        System.out.println(json.getString("odata.metadata"));
+        //System.out.println(json.getString("odata.metadata"));
         JSONArray jsonArray = json.getJSONArray("value");
         for (int index = 0; index < jsonArray.length(); index++) {
 
@@ -72,20 +82,23 @@ public class SimpleAuthTest extends TestCase {
                 System.out.println(oneItem.getString("Title"));
             }
             // odata.id will have the full URL.
-            String fileUrl = jsonArray.getJSONObject(index).getString("odata.id");
+            String fileUrl = oneItem.getString("odata.id");
             System.out.println(fileUrl);
+            JSONObject fileJson = new JSONObject(getResponse(accessToken, fileUrl));
+            System.out.println(fileJson.toString(2));
         }
     }
 
-    private String getResponse(String accessToken, String apiUri) throws Exception {
+    private String getResponse(String accessToken, String apiUrl) throws Exception {
 
-        URL url = new URL(conf.getProperty("target.source") + 
-                          conf.getProperty("sharepoint.site") + apiUri);
+        URL url = new URL(apiUrl); 
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
         conn.setRequestMethod("GET");
         conn.setRequestProperty("Authorization", "Bearer " + accessToken);
-        conn.setRequestProperty("Accept","application/json");
+        //conn.setRequestProperty("Accept","application/json;odata=verbose;");
+        conn.setRequestProperty("Accept","application/json;");
+        //conn.setRequestProperty("ContentType","application/json;odata=verbose;");
+        //conn.connect();
 
         int httpResponseCode = conn.getResponseCode();
         if(httpResponseCode == 200) {
@@ -117,7 +130,7 @@ public class SimpleAuthTest extends TestCase {
 
         AuthenticationResult result = getAuthResult();
         assertNotNull(result);
-        System.out.println(result.getAccessToken());
+        //System.out.println(result.getAccessToken());
     }
 
     private AuthenticationResult getAuthResult() {
