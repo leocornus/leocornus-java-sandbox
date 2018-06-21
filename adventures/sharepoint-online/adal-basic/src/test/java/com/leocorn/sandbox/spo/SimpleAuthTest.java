@@ -49,7 +49,10 @@ public class SimpleAuthTest extends TestCase {
     public void testListFiles() throws Exception {
 
         String accessToken = getAuthResult().getAccessToken();
-        String apiUri = "/_api/web/GetFolderByServerRelativeUrl('Customer%20Group%20K/Karl%20Dungs%20Inc%20-%200004507796/000070008273')/files";
+        // list of files.
+        //String apiUri = "/_api/web/GetFolderByServerRelativeUrl('Customer%20Group%20K/Karl%20Dungs%20Inc%20-%200004507796/000070008273')/files";
+        // list of folders.
+        String apiUri = "/_api/web/GetFolderByServerRelativeUrl('Customer%20Group%20K/Karl%20Dungs%20Inc%20-%200004507796')/folders";
 
         JSONObject json = new JSONObject(getResponse(accessToken, apiUri));
         System.out.println(json.toString(2));
@@ -57,7 +60,20 @@ public class SimpleAuthTest extends TestCase {
         JSONArray jsonArray = json.getJSONArray("value");
         for (int index = 0; index < jsonArray.length(); index++) {
 
-            System.out.println(jsonArray.getJSONObject(index).getString("Title"));
+            // one item.
+            JSONObject oneItem = jsonArray.getJSONObject(index);
+
+            // odata.type tells the
+            String type = oneItem.getString("odata.type");
+            if (type.equals("SP.Folder")) {
+                System.out.println(oneItem.getString("Name"));
+            } else {
+                // the field name is case sensitive!
+                System.out.println(oneItem.getString("Title"));
+            }
+            // odata.id will have the full URL.
+            String fileUrl = jsonArray.getJSONObject(index).getString("odata.id");
+            System.out.println(fileUrl);
         }
     }
 
