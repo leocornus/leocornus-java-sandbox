@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.InputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -44,6 +46,18 @@ public class SimpleAuthTest extends TestCase {
     public static Test suite() {
 
         return new TestSuite(SimpleAuthTest.class);
+    }
+
+    public void testDownloadAFile() throws Exception {
+
+        String accessToken = getAuthResult().getAccessToken();
+        // view a file properties, which will have all metadata.
+        String apiUri = "/_api/web/GetFolderByServerRelativeUrl('Customer%20Group%20K/Karl%20Dungs%20Inc%20-%200004507796/000070008273')/Files('0000125314_QIP_0000157406.pdf')/$value";
+        String apiUrl = conf.getProperty("target.source") + 
+                        conf.getProperty("sharepoint.site") + apiUri;
+        System.out.println(apiUrl);
+
+        downloadFile(accessToken, apiUrl);
     }
 
     public void testListFiles() throws Exception {
@@ -93,6 +107,77 @@ public class SimpleAuthTest extends TestCase {
         }
     }
 
+    /**
+     */
+    private void downloadFile(String accessToken, String fileUrl) throws Exception {
+
+        URL url = new URL(fileUrl); 
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("GET");
+        conn.setRequestProperty("Authorization", "Bearer " + accessToken);
+        conn.setRequestProperty("Accept","application/json;odata=verbose;");
+        //conn.setRequestProperty("Accept","application/json;");
+        //conn.setRequestProperty("ContentType","application/json;odata=verbose;");
+        //conn.connect();
+
+        String saveDir = "/opt/dev/spo-files";
+
+        int httpResponseCode = conn.getResponseCode();
+        if(httpResponseCode == 200) {
+            // try to find the file name.
+            String fileName = "default";
+            String disposition = conn.getHeaderField("Content-Disposition");
+            String contentType = conn.getContentType();
+            int contentLength = conn.getContentLength();
+ 
+            if (disposition != null) {
+                // extracts file name from header field
+                int index = disposition.indexOf("filename=");
+                if (index > 0) {
+                    fileName = disposition.substring(index + 10,
+                            disposition.length() - 1);
+                }
+            } else {
+                // extracts file name from URL
+                fileName = fileUrl.substring(fileUrl.lastIndexOf("/") + 1,
+                        fileUrl.length());
+            }
+ 
+            System.out.println("Content-Type = " + contentType);
+            System.out.println("Content-Disposition = " + disposition);
+            System.out.println("Content-Length = " + contentLength);
+            System.out.println("fileName = " + fileName);
+ 
+            // opens input stream from the HTTP connection
+            InputStream inputStream = conn.getInputStream();
+            String saveFilePath = saveDir + File.separator + fileName;
+
+            // opens an output stream to save into file
+            FileOutputStream outputStream = new FileOutputStream(saveFilePath);
+ 
+            int bytesRead = -1;
+            byte[] buffer = new byte[4096];
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
+            }
+ 
+            outputStream.close();
+            inputStream.close();
+ 
+            System.out.println("File downloaded");
+
+        } else {
+            System.out.println(String.format("Connection returned HTTP code: %s with message: %s",
+                    httpResponseCode, conn.getResponseMessage()));
+        }
+
+        conn.disconnect();
+    }
+
+    /**
+     * get response from the given URL by using the access token.
+     * The response will be returned as it is.
+     */
     private String getResponse(String accessToken, String apiUrl) throws Exception {
 
         URL url = new URL(apiUrl); 
