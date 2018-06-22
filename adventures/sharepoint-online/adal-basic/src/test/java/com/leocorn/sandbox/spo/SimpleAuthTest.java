@@ -64,12 +64,12 @@ public class SimpleAuthTest extends TestCase {
 
         String accessToken = getAuthResult().getAccessToken();
         // view a file properties, which will have all metadata.
-        String apiUri = "/_api/web/GetFolderByServerRelativeUrl('Customer%20Group%20K/Karl%20Dungs%20Inc%20-%200004507796/000070008273')/Files('0000125314_QIP_0000157406.pdf')/Properties";
+        //String apiUri = "/_api/web/GetFolderByServerRelativeUrl('Customer%20Group%20K/Karl%20Dungs%20Inc%20-%200004507796/000070008273')/Files('0000125314_QIP_0000157406.pdf')/Properties";
         // download a file.
         //String apiUri = "/_api/web/GetFolderByServerRelativeUrl('Customer%20Group%20K/Karl%20Dungs%20Inc%20-%200004507796/000070008273')/Files('0000125314_QIP_0000157406.pdf')/$value";
         // /0000125314_QIP_0000157406.pdf')";
         // list of files.
-        //String apiUri = "/_api/web/GetFolderByServerRelativeUrl('Customer%20Group%20K/Karl%20Dungs%20Inc%20-%200004507796/000070008273')/files";
+        String apiUri = "/_api/web/GetFolderByServerRelativeUrl('Customer%20Group%20K/Karl%20Dungs%20Inc%20-%200004507796/000070008273')/Files";
         // list of folders.
         //String apiUri = "/_api/web/GetFolderByServerRelativeUrl('Customer%20Group%20K/Karl%20Dungs%20Inc%20-%200004507796')/folders";
         // get metadata for a fodler.
@@ -80,10 +80,10 @@ public class SimpleAuthTest extends TestCase {
         System.out.println(apiUrl);
 
         String res = getResponse(accessToken, apiUrl);
-        System.out.println(res);
+        //System.out.println(res);
         JSONObject json = new JSONObject(res);
         // print out the JSON with 2 white spaces as indention.
-        System.out.println(json.toString(2));
+        //System.out.println(json.toString(2));
         //System.out.println(json.getString("odata.metadata"));
         JSONArray jsonArray = json.getJSONArray("value");
         for (int index = 0; index < jsonArray.length(); index++) {
@@ -100,10 +100,11 @@ public class SimpleAuthTest extends TestCase {
                 System.out.println(oneItem.getString("Title"));
             }
             // odata.id will have the full URL.
-            String fileUrl = oneItem.getString("odata.id");
-            System.out.println(fileUrl);
-            JSONObject fileJson = new JSONObject(getResponse(accessToken, fileUrl));
-            System.out.println(fileJson.toString(2));
+            //String fileUrl = oneItem.getString("odata.id");
+            String fileUrl = apiUrl + "('" + oneItem.getString("Title") +
+                             "')/$value";
+            //System.out.println(fileUrl);
+            downloadFile(accessToken, fileUrl);
         }
     }
 
@@ -175,8 +176,8 @@ public class SimpleAuthTest extends TestCase {
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
         conn.setRequestProperty("Authorization", "Bearer " + accessToken);
-        conn.setRequestProperty("Accept","application/json;odata=verbose;");
-        //conn.setRequestProperty("Accept","application/json;");
+        //conn.setRequestProperty("Accept","application/json;odata=verbose;");
+        conn.setRequestProperty("Accept","application/json;");
         //conn.setRequestProperty("ContentType","application/json;odata=verbose;");
         //conn.connect();
 
