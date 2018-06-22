@@ -9,6 +9,8 @@ import java.io.FileOutputStream;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.net.URLDecoder;
 
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
@@ -83,7 +85,7 @@ public class SimpleAuthTest extends TestCase {
         //System.out.println(res);
         JSONObject json = new JSONObject(res);
         // print out the JSON with 2 white spaces as indention.
-        //System.out.println(json.toString(2));
+        System.out.println(json.toString(2));
         //System.out.println(json.getString("odata.metadata"));
         JSONArray jsonArray = json.getJSONArray("value");
         for (int index = 0; index < jsonArray.length(); index++) {
@@ -99,9 +101,11 @@ public class SimpleAuthTest extends TestCase {
                 // the field name is case sensitive!
                 System.out.println(oneItem.getString("Title"));
             }
+            String fileName = oneItem.getString("Title");
             // odata.id will have the full URL.
             //String fileUrl = oneItem.getString("odata.id");
-            String fileUrl = apiUrl + "('" + oneItem.getString("Title") +
+            String fileUrl = 
+                apiUrl + "('" + URLEncoder.encode(fileName, "utf-8").replace("+", "%20") +
                              "')/$value";
             //System.out.println(fileUrl);
             downloadFile(accessToken, fileUrl);
@@ -132,8 +136,10 @@ public class SimpleAuthTest extends TestCase {
             int contentLength = conn.getContentLength();
  
             // extracts file name from URL
-            fileName = fileUrl.substring(fileUrl.lastIndexOf("Files('") + 7,
-                                         fileUrl.lastIndexOf("')/$value"));
+            fileName = URLDecoder.decode(
+                fileUrl.substring(fileUrl.lastIndexOf("Files('") + 7,
+                                  fileUrl.lastIndexOf("')/$value")),
+                "UTF-8");
  
             System.out.println("Content-Type = " + contentType);
             System.out.println("Content-Disposition = " + disposition);
@@ -161,6 +167,7 @@ public class SimpleAuthTest extends TestCase {
         } else {
             System.out.println(String.format("Connection returned HTTP code: %s with message: %s",
                     httpResponseCode, conn.getResponseMessage()));
+            System.out.println(fileUrl);
         }
 
         conn.disconnect();
