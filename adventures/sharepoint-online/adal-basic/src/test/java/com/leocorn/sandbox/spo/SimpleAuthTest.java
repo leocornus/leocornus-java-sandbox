@@ -130,18 +130,9 @@ public class SimpleAuthTest extends TestCase {
             String contentType = conn.getContentType();
             int contentLength = conn.getContentLength();
  
-            if (disposition != null) {
-                // extracts file name from header field
-                int index = disposition.indexOf("filename=");
-                if (index > 0) {
-                    fileName = disposition.substring(index + 10,
-                            disposition.length() - 1);
-                }
-            } else {
-                // extracts file name from URL
-                fileName = fileUrl.substring(fileUrl.lastIndexOf("/") + 1,
-                        fileUrl.length());
-            }
+            // extracts file name from URL
+            fileName = fileUrl.substring(fileUrl.lastIndexOf("Files('") + 7,
+                                         fileUrl.lastIndexOf("')/$value"));
  
             System.out.println("Content-Type = " + contentType);
             System.out.println("Content-Disposition = " + disposition);
