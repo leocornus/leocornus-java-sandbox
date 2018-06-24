@@ -50,7 +50,75 @@ public class SimpleAuthTest extends TestCase {
         return new TestSuite(SimpleAuthTest.class);
     }
 
-    public void testDownloadAFile() throws Exception {
+    /**
+     * quick test for iteration.
+     */
+    public void testIteration() throws Exception {
+
+        String accessToken = getAuthResult().getAccessToken();
+        // starts from group folder.
+        processFolder(accessToken, "Customer Group K");
+    }
+
+    /**
+     * process one folder.
+     */
+    public void processFolder(String accessToken, String folderName) 
+        throws Exception {
+
+        // build folderUrl.
+        String folderUrl = conf.getProperty("target.source") + 
+                           conf.getProperty("sharepoint.site") + 
+                           "/_api/web/getFolderByServerRelativeUrl('" +
+            URLEncoder.encode(folderName, "utf-8").replace("+", "%20") + "')";
+        // get Files.
+        String res = getResponse(accessToken, folderUrl + "/Files");
+        JSONObject json = new JSONObject(res);
+        // If has Files, download all files 
+        JSONArray filesArray = json.getJSONArray("value");
+        // logging...
+        System.out.println("==== Downloading " + filesArray.length() + " Files");
+        for (int index = 0; index < filesArray.length(); index++) {
+
+            // one file 
+            JSONObject oneFile = filesArray.getJSONObject(index);
+            String fileName = "NONAME";
+            if(oneFile.has("Title") && !oneFile.isNull("Title")) {
+                fileName = oneFile.getString("Title");
+            } else {
+                System.out.println("Could not find file name, skip ...");
+                continue;
+            }
+            // odata.id will have the full URL.
+            //String fileUrl = oneItem.getString("odata.id");
+            String fileUrl = 
+                folderUrl + "/Files('" + 
+                URLEncoder.encode(fileName, "utf-8").replace("+", "%20") +
+                "')/$value";
+            //System.out.println(fileUrl);
+            downloadFile(accessToken, fileUrl);
+        }
+
+        // get all Folders
+        res = getResponse(accessToken, folderUrl + "/Folders");
+        json = new JSONObject(res);
+        // if has Folders, process each folder by call it self.
+        JSONArray jsonArray = json.getJSONArray("value");
+        // logging...
+        System.out.println("== Processing " + jsonArray.length() + " Folders");
+        for (int index = 0; index < jsonArray.length(); index++) {
+            // get the folder name.
+            JSONObject oneFolder = jsonArray.getJSONObject(index);
+            String subFolderName = oneFolder.getString("Name");
+            // call it self.
+            processFolder(accessToken, folderName + "/" + subFolderName);
+        }
+    }
+
+    /**
+     * quick test to download a single file.
+     */
+    public void notestDownloadAFile() throws Exception {
 
         String accessToken = getAuthResult().getAccessToken();
         // view a file properties, which will have all metadata.
@@ -62,7 +130,10 @@ public class SimpleAuthTest extends TestCase {
         downloadFile(accessToken, apiUrl);
     }
 
-    public void testListFiles() throws Exception {
+    /**
+     * quick test to list files.
+     */
+    public void notestListFiles() throws Exception {
 
         String accessToken = getAuthResult().getAccessToken();
         // view a file properties, which will have all metadata.
@@ -71,7 +142,10 @@ public class SimpleAuthTest extends TestCase {
         //String apiUri = "/_api/web/GetFolderByServerRelativeUrl('Customer%20Group%20K/Karl%20Dungs%20Inc%20-%200004507796/000070008273')/Files('0000125314_QIP_0000157406.pdf')/$value";
         // /0000125314_QIP_0000157406.pdf')";
         // list of files.
-        String apiUri = "/_api/web/GetFolderByServerRelativeUrl('Customer%20Group%20K/Karl%20Dungs%20Inc%20-%200004507796/000070008273')/Files";
+        String apiUri = "/_api/web/GetFolderByServerRelativeUrl('Customer%20Group%20K')/Folders";
+        //String apiUri = "/_api/web/GetFolderByServerRelativeUrl('Customer%20Group%20K/Karl%20Dungs%20Inc%20-%200004507796/000070008273/Work%20Orders')/Files";
+        //String apiUri = "/_api/web/GetFolderByServerRelativeUrl('Customer%20Group%20K/Karl%20Dungs%20Inc%20-%200004507796/000070008273')/Files";
+        //String apiUri = "/_api/web/GetFolderByServerRelativeUrl('Customer%20Group%20K/Karl%20Dungs%20Inc%20-%200004507796/000070008273')/Folders";
         // list of folders.
         //String apiUri = "/_api/web/GetFolderByServerRelativeUrl('Customer%20Group%20K/Karl%20Dungs%20Inc%20-%200004507796')/folders";
         // get metadata for a fodler.
