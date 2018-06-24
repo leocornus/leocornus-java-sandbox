@@ -18,6 +18,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ExecutionException;
 
+import java.time.LocalDateTime;
+
 import javax.naming.ServiceUnavailableException;
 
 import com.microsoft.aad.adal4j.AuthenticationContext;
@@ -55,16 +57,33 @@ public class SimpleAuthTest extends TestCase {
      */
     public void testIteration() throws Exception {
 
-        String accessToken = getAuthResult().getAccessToken();
+        //String token = getAuthResult().getAccessToken();
         // starts from group folder.
-        processFolder(accessToken, "Customer Group K");
+        processFolder("Customer Group K");
     }
+
+    private String accessToken = "";
+    private LocalDateTime tokenTimestamp = null;
 
     /**
      * process one folder.
      */
-    public void processFolder(String accessToken, String folderName) 
+    public void processFolder(String folderName) 
         throws Exception {
+
+        // get accessToken 
+        if(accessToken.isEmpty()) {
+            accessToken = getAuthResult().getAccessToken();
+            tokenTimestamp = LocalDateTime.now();
+        } else {
+            LocalDateTime thirtyMins = LocalDateTime.now().minusMinutes(30);
+            int age = tokenTimestamp.compareTo(thirtyMins);
+            if(age < 0) {
+                // crate new access token.
+                accessToken = getAuthResult().getAccessToken();
+                tokenTimestamp = LocalDateTime.now();
+            }
+        }
 
         // build folderUrl.
         String folderUrl = conf.getProperty("target.source") + 
@@ -111,7 +130,7 @@ public class SimpleAuthTest extends TestCase {
             JSONObject oneFolder = jsonArray.getJSONObject(index);
             String subFolderName = oneFolder.getString("Name");
             // call it self.
-            processFolder(accessToken, folderName + "/" + subFolderName);
+            processFolder(folderName + "/" + subFolderName);
         }
     }
 
@@ -120,14 +139,14 @@ public class SimpleAuthTest extends TestCase {
      */
     public void notestDownloadAFile() throws Exception {
 
-        String accessToken = getAuthResult().getAccessToken();
+        String token = getAuthResult().getAccessToken();
         // view a file properties, which will have all metadata.
         String apiUri = "/_api/web/GetFolderByServerRelativeUrl('Customer%20Group%20K/Karl%20Dungs%20Inc%20-%200004507796/000070008273')/Files('0000125314_QIP_0000157406.pdf')/$value";
         String apiUrl = conf.getProperty("target.source") + 
                         conf.getProperty("sharepoint.site") + apiUri;
         System.out.println(apiUrl);
 
-        downloadFile(accessToken, apiUrl);
+        downloadFile(token, apiUrl);
     }
 
     /**
@@ -135,7 +154,7 @@ public class SimpleAuthTest extends TestCase {
      */
     public void notestListFiles() throws Exception {
 
-        String accessToken = getAuthResult().getAccessToken();
+        String token = getAuthResult().getAccessToken();
         // view a file properties, which will have all metadata.
         //String apiUri = "/_api/web/GetFolderByServerRelativeUrl('Customer%20Group%20K/Karl%20Dungs%20Inc%20-%200004507796/000070008273')/Files('0000125314_QIP_0000157406.pdf')/Properties";
         // download a file.
@@ -155,7 +174,7 @@ public class SimpleAuthTest extends TestCase {
                         conf.getProperty("sharepoint.site") + apiUri;
         System.out.println(apiUrl);
 
-        String res = getResponse(accessToken, apiUrl);
+        String res = getResponse(token, apiUrl);
         //System.out.println(res);
         JSONObject json = new JSONObject(res);
         // print out the JSON with 2 white spaces as indention.
@@ -182,18 +201,18 @@ public class SimpleAuthTest extends TestCase {
                 apiUrl + "('" + URLEncoder.encode(fileName, "utf-8").replace("+", "%20") +
                              "')/$value";
             //System.out.println(fileUrl);
-            downloadFile(accessToken, fileUrl);
+            downloadFile(token, fileUrl);
         }
     }
 
     /**
      */
-    private void downloadFile(String accessToken, String fileUrl) throws Exception {
+    private void downloadFile(String token, String fileUrl) throws Exception {
 
         URL url = new URL(fileUrl); 
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
-        conn.setRequestProperty("Authorization", "Bearer " + accessToken);
+        conn.setRequestProperty("Authorization", "Bearer " + token);
         conn.setRequestProperty("Accept","application/json;odata=verbose;");
         //conn.setRequestProperty("Accept","application/json;");
         //conn.setRequestProperty("ContentType","application/json;odata=verbose;");
@@ -251,12 +270,12 @@ public class SimpleAuthTest extends TestCase {
      * get response from the given URL by using the access token.
      * The response will be returned as it is.
      */
-    private String getResponse(String accessToken, String apiUrl) throws Exception {
+    private String getResponse(String token, String apiUrl) throws Exception {
 
         URL url = new URL(apiUrl); 
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
-        conn.setRequestProperty("Authorization", "Bearer " + accessToken);
+        conn.setRequestProperty("Authorization", "Bearer " + token);
         //conn.setRequestProperty("Accept","application/json;odata=verbose;");
         conn.setRequestProperty("Accept","application/json;");
         //conn.setRequestProperty("ContentType","application/json;odata=verbose;");
