@@ -55,7 +55,7 @@ public class SimpleAuthTest extends TestCase {
     /**
      * quick test for iteration.
      */
-    public void testIteration() throws Exception {
+    public void notestIteration() throws Exception {
 
         //String token = getAuthResult().getAccessToken();
         // starts from group folder.
@@ -110,12 +110,18 @@ public class SimpleAuthTest extends TestCase {
             }
             // odata.id will have the full URL.
             //String fileUrl = oneItem.getString("odata.id");
+
+            // we need get the metadata for the file.
+
+            // get ready the URL for download binary.
             String fileUrl = 
                 folderUrl + "/Files('" + 
                 URLEncoder.encode(fileName, "utf-8").replace("+", "%20") +
                 "')/$value";
             //System.out.println(fileUrl);
             downloadFile(accessToken, fileUrl);
+
+            // update Solr to index this file. SolrJ
         }
 
         // get all Folders
@@ -206,8 +212,10 @@ public class SimpleAuthTest extends TestCase {
     }
 
     /**
+     * return the full path for the saved file.
+     * if failed to download, we will return Null.
      */
-    private void downloadFile(String token, String fileUrl) throws Exception {
+    private String downloadFile(String token, String fileUrl) throws Exception {
 
         URL url = new URL(fileUrl); 
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -219,6 +227,7 @@ public class SimpleAuthTest extends TestCase {
         //conn.connect();
 
         String saveDir = "/opt/dev/spo-files";
+        String saveFilePath = null;
 
         int httpResponseCode = conn.getResponseCode();
         if(httpResponseCode == 200) {
@@ -241,7 +250,7 @@ public class SimpleAuthTest extends TestCase {
  
             // opens input stream from the HTTP connection
             InputStream inputStream = conn.getInputStream();
-            String saveFilePath = saveDir + File.separator + fileName;
+            saveFilePath = saveDir + File.separator + fileName;
 
             // opens an output stream to save into file
             FileOutputStream outputStream = new FileOutputStream(saveFilePath);
@@ -264,6 +273,8 @@ public class SimpleAuthTest extends TestCase {
         }
 
         conn.disconnect();
+
+        return saveFilePath;
     }
 
     /**
@@ -311,7 +322,7 @@ public class SimpleAuthTest extends TestCase {
 
         AuthenticationResult result = getAuthResult();
         assertNotNull(result);
-        //System.out.println(result.getAccessToken());
+        System.out.println(result.getAccessToken());
     }
 
     private AuthenticationResult getAuthResult() {
