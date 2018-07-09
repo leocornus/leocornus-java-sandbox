@@ -119,12 +119,15 @@ public class SimpleAuthTest extends TestCase {
             // we need get the metadata for the file.
             String propertyUrl = 
                 folderUrl + "/Files('" + encodedFileName + "')/Properties";
+            Map props = getProperties(accessToken, propertyUrl);
+            System.out.println(props);
 
             // get ready the URL for download binary.
             String fileUrl = 
                 folderUrl + "/Files('" + encodedFileName + "')/$value";
             //System.out.println(fileUrl);
-            downloadFile(accessToken, fileUrl);
+            // the file path to local 
+            String filePath = downloadFile(accessToken, fileUrl);
 
             // update Solr to index this file. SolrJ
         }
@@ -184,11 +187,39 @@ public class SimpleAuthTest extends TestCase {
         props.put("project_order", json.getString("Order"));
         props.put("security_classification", json.getString("SecurityClassification"));
         // TODO: parse this to extract folder names.
-        props.put("odata_id", json.getString("odata.id"));
+        String fullUrl = json.getString("odata.id");
+        props.put("odata_id", fullUrl);
+        fullUrl.indexOf("getFolderByServerRelativeUrl('");
+        props.put("folder_customer_group", "");
+        props.put("folder_customer", "");
         props.put("file_spo_id", json.getString("OData__x005f_dlc_x005f_DocId"));
 
         System.out.println(props);
         return props;
+    }
+
+    /**
+     * test the extractFunctionValue
+     */
+    public void testExtractFunctionValue() throws Exception {
+
+        String fromUrl = "https://csagrporg.sharepoint.com/sites/QADocBoxMig/_api/web/GetFolderByServerRelativeUrl('Customer Group K/Karl Dungs Inc - 0004507796/000070008273')/Files('0000125314_QIP_0000157406.pdf')/Properties";
+        String folder = extractFunctionValue(fromUrl, "GetFolderByServerRelativeUrl");
+        System.out.println(folder);
+        assertEquals(folder, "Customer Group K/Karl Dungs Inc - 0004507796/000070008273");
+
+        String file = extractFunctionValue(fromUrl, "Files");
+        assertEquals(file, "0000125314_QIP_0000157406.pdf");
+    }
+
+    /**
+     * utility method to extract function value
+     */
+    private String extractFunctionValue(String from, String functionName) throws Exception {
+
+        int start = from.indexOf(functionName + "('");
+        int end = from.indexOf("')", start);
+        return from.substring(start + functionName.length() + 2, end);
     }
 
     /**
