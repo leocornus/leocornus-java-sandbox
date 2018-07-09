@@ -31,6 +31,15 @@ import com.microsoft.aad.adal4j.AuthenticationResult;
 import org.json.JSONObject;
 import org.json.JSONArray;
 
+import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.request.AbstractUpdateRequest;
+import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.client.solrj.request.ContentStreamUpdateRequest;
+import org.apache.solr.common.util.ContentStreamBase;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -151,7 +160,7 @@ public class SimpleAuthTest extends TestCase {
     /**
      * test to get metadata SP.PropertyValues for a file.
      */
-    public void testGetProperties() throws Exception {
+    public void notestGetProperties() throws Exception {
         String token = getAuthResult().getAccessToken();
         // view a file properties, which will have all metadata.
         String apiUri = "/_api/web/GetFolderByServerRelativeUrl('Customer%20Group%20K/Karl%20Dungs%20Inc%20-%200004507796/000070008273')/Files('0000125314_QIP_0000157406.pdf')/Properties";
@@ -187,6 +196,7 @@ public class SimpleAuthTest extends TestCase {
         props.put("project_order", json.getString("Order"));
         props.put("security_classification", json.getString("SecurityClassification"));
         // TODO: parse this to extract folder names.
+        // we only care about customer group and customer foler.
         String fullUrl = json.getString("odata.id");
         props.put("odata_id", fullUrl);
         String folder = extractFunctionValue(fullUrl, "GetFolderByServerRelativeUrl");
@@ -205,7 +215,7 @@ public class SimpleAuthTest extends TestCase {
     /**
      * test the extractFunctionValue
      */
-    public void testExtractFunctionValue() throws Exception {
+    public void notestExtractFunctionValue() throws Exception {
 
         String fromUrl = "https://csagrporg.sharepoint.com/sites/QADocBoxMig/_api/web/GetFolderByServerRelativeUrl('Customer Group K/Karl Dungs Inc - 0004507796/000070008273')/Files('0000125314_QIP_0000157406.pdf')/Properties";
         String folder = extractFunctionValue(fromUrl, "GetFolderByServerRelativeUrl");
@@ -446,6 +456,47 @@ public class SimpleAuthTest extends TestCase {
         }
 
         return result;
+    }
+
+    /**
+     * test the index files
+     */
+    public void testIndexFilesSolrCell() throws Exception {
+
+        String token = getAuthResult().getAccessToken();
+        // view a file properties, which will have all metadata.
+        String apiUri = "/_api/web/GetFolderByServerRelativeUrl('Customer%20Group%20K/Karl%20Dungs%20Inc%20-%200004507796/000070008273')/Files('0000125314_QIP_0000157406.pdf')/$value";
+        String apiUrl = conf.getProperty("target.source") + 
+                        conf.getProperty("sharepoint.site") + apiUri;
+        System.out.println(apiUrl);
+
+        String localFile = downloadFile(token, apiUrl);
+
+        indexFilesSolrCell(localFile);
+    }
+
+    /**
+     * index file using ExtractingRequestHandler.
+     */
+    private void indexFilesSolrCell(String fileName) 
+      throws IOException, SolrServerException {
+      
+        String urlString = "http://localhost:8981/solr/test-files"; 
+        SolrClient solr = new HttpSolrClient.Builder(urlString).build();
+
+        ContentStreamUpdateRequest up 
+          = new ContentStreamUpdateRequest("/update/extract");
+
+        up.addContentStream(new ContentStreamBase.FileStream(new File(fileName)));
+
+        //up.setParam("literal.id", solrId);
+
+        up.setParam("uprefix", "attr_");
+        up.setParam("fmap.content", "file_content");
+
+        up.setAction(AbstractUpdateRequest.ACTION.COMMIT, true, true);
+
+        solr.request(up);
     }
 
     /**
