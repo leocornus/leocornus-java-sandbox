@@ -17,6 +17,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ExecutionException;
+import java.util.Map;
+import java.util.HashMap;
 
 import java.time.LocalDateTime;
 
@@ -110,14 +112,16 @@ public class SimpleAuthTest extends TestCase {
             }
             // odata.id will have the full URL.
             //String fileUrl = oneItem.getString("odata.id");
+            String encodedFileName = 
+                URLEncoder.encode(fileName, "utf-8").replace("+", "%20");
 
             // we need get the metadata for the file.
+            String propertyUrl = 
+                folderUrl + "/Files('" + encodedFileName + "')/Properties";
 
             // get ready the URL for download binary.
             String fileUrl = 
-                folderUrl + "/Files('" + 
-                URLEncoder.encode(fileName, "utf-8").replace("+", "%20") +
-                "')/$value";
+                folderUrl + "/Files('" + encodedFileName + "')/$value";
             //System.out.println(fileUrl);
             downloadFile(accessToken, fileUrl);
 
@@ -138,6 +142,38 @@ public class SimpleAuthTest extends TestCase {
             // call it self.
             processFolder(folderName + "/" + subFolderName);
         }
+    }
+
+    /**
+     * test to get metadata SP.PropertyValues for a file.
+     */
+    public void testGetProperties() throws Exception {
+
+        String token = getAuthResult().getAccessToken();
+        // view a file properties, which will have all metadata.
+        String apiUri = "/_api/web/GetFolderByServerRelativeUrl('Customer%20Group%20K/Karl%20Dungs%20Inc%20-%200004507796/000070008273')/Files('0000125314_QIP_0000157406.pdf')/Properties";
+        String apiUrl = conf.getProperty("target.source") + 
+                        conf.getProperty("sharepoint.site") + apiUri;
+        System.out.println(apiUrl);
+
+        String res = getResponse(token, apiUrl);
+        JSONObject json = new JSONObject(res);
+        //System.out.println(json.toString(2));
+
+        Map props = new HashMap();
+        props.put("customer_id", json.getString("CustomerNumber"));
+        props.put("customer_name", json.getString("CustomerName"));
+        props.put("project_id", json.getString("ProjectID"));
+        props.put("project_status", json.getString("ProjectStatus"));
+        props.put("certificate_id", json.getString("CertificateNumber"));
+        props.put("master_contract_number", json.getString("MasterContractNumber"));
+        props.put("project_order", json.getString("Order"));
+        props.put("security_classification", json.getString("SecurityClassification"));
+        // TODO: parse this to extract folder names.
+        props.put("odata_id", json.getString("odata.id"));
+        props.put("file_spo_id", json.getString("OData__x005f_dlc_x005f_DocId"));
+
+        System.out.println(props);
     }
 
     /**
