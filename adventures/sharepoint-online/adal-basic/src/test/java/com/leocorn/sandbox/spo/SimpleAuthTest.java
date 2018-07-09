@@ -19,6 +19,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ExecutionException;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Set;
 
 import java.time.LocalDateTime;
 
@@ -148,15 +149,28 @@ public class SimpleAuthTest extends TestCase {
      * test to get metadata SP.PropertyValues for a file.
      */
     public void testGetProperties() throws Exception {
-
         String token = getAuthResult().getAccessToken();
         // view a file properties, which will have all metadata.
         String apiUri = "/_api/web/GetFolderByServerRelativeUrl('Customer%20Group%20K/Karl%20Dungs%20Inc%20-%200004507796/000070008273')/Files('0000125314_QIP_0000157406.pdf')/Properties";
         String apiUrl = conf.getProperty("target.source") + 
                         conf.getProperty("sharepoint.site") + apiUri;
         System.out.println(apiUrl);
+        Map props = getProperties(token, apiUrl);
+        // Returns Set view
+        Set< Map.Entry< String,Integer> > st = props.entrySet();   
 
-        String res = getResponse(token, apiUrl);
+        for (Map.Entry< String,Integer> me:st) {
+            System.out.print(me.getKey()+": ");
+            System.out.println(me.getValue());
+        }
+    }
+
+    /**
+     */
+    private Map getProperties(String token, String propertyUrl) 
+        throws Exception {
+
+        String res = getResponse(token, propertyUrl);
         JSONObject json = new JSONObject(res);
         //System.out.println(json.toString(2));
 
@@ -174,6 +188,7 @@ public class SimpleAuthTest extends TestCase {
         props.put("file_spo_id", json.getString("OData__x005f_dlc_x005f_DocId"));
 
         System.out.println(props);
+        return props;
     }
 
     /**
