@@ -481,7 +481,7 @@ public class SimpleAuthTest extends TestCase {
     private void indexFilesSolrCell(String fileName) 
       throws IOException, SolrServerException {
       
-        String urlString = "http://localhost:8981/solr/test-files"; 
+        String urlString = conf.getProperty("solr.baseurl");
         SolrClient solr = new HttpSolrClient.Builder(urlString).build();
 
         ContentStreamUpdateRequest up 
