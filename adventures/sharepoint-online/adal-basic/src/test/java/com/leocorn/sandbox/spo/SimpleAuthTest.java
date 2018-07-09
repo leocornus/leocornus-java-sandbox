@@ -189,9 +189,13 @@ public class SimpleAuthTest extends TestCase {
         // TODO: parse this to extract folder names.
         String fullUrl = json.getString("odata.id");
         props.put("odata_id", fullUrl);
-        fullUrl.indexOf("getFolderByServerRelativeUrl('");
-        props.put("folder_customer_group", "");
-        props.put("folder_customer", "");
+        String folder = extractFunctionValue(fullUrl, "GetFolderByServerRelativeUrl");
+        String[] folders = folder.split("/");
+        String fileName = extractFunctionValue(fullUrl, "Files");
+        props.put("folder_customer_group", folders[0]);
+        props.put("folder_customer", folders[1]);
+        props.put("file_name", fileName);
+        props.put("file_path", folder + "/" + fileName);
         props.put("file_spo_id", json.getString("OData__x005f_dlc_x005f_DocId"));
 
         System.out.println(props);
