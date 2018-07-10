@@ -465,20 +465,29 @@ public class SimpleAuthTest extends TestCase {
 
         String token = getAuthResult().getAccessToken();
         // view a file properties, which will have all metadata.
-        String apiUri = "/_api/web/GetFolderByServerRelativeUrl('Customer%20Group%20K/Karl%20Dungs%20Inc%20-%200004507796/000070008273')/Files('0000125314_QIP_0000157406.pdf')/$value";
-        String apiUrl = conf.getProperty("target.source") + 
-                        conf.getProperty("sharepoint.site") + apiUri;
-        System.out.println(apiUrl);
+        String fileUri = "/_api/web/GetFolderByServerRelativeUrl('Customer%20Group%20K/Karl%20Dungs%20Inc%20-%200004507796/000070008273')/Files('0000125314_QIP_0000157406.pdf')";
 
-        String localFile = downloadFile(token, apiUrl);
+        // get metadata for the file.
+        String propertiesUrl = conf.getProperty("target.source") + 
+                        conf.getProperty("sharepoint.site") + 
+                        fileUri + "/Properties";
+        Map props = getProperties(token, propertiesUrl);
+        System.out.println(props);
 
-        indexFilesSolrCell(localFile);
+        // download the file.
+        String downloadUrl = conf.getProperty("target.source") + 
+                        conf.getProperty("sharepoint.site") + 
+                        fileUri + "/$value";
+        System.out.println(downloadUrl);
+        String localFile = downloadFile(token, downloadUrl);
+
+        indexFilesSolrCell(localFile, props);
     }
 
     /**
      * index file using ExtractingRequestHandler.
      */
-    private void indexFilesSolrCell(String fileName) 
+    private void indexFilesSolrCell(String fileName, Map props) 
       throws IOException, SolrServerException {
       
         String urlString = conf.getProperty("solr.baseurl");
@@ -489,10 +498,15 @@ public class SimpleAuthTest extends TestCase {
 
         up.addContentStream(new ContentStreamBase.FileStream(new File(fileName)));
 
-        //up.setParam("literal.id", solrId);
+        Set< Map.Entry< String,String> > st = props.entrySet();   
 
-        up.setParam("literal.project_id", "000078293721");
-        up.setParam("literal.c4c_type", "other");
+        for (Map.Entry< String,String> me:st) {
+            System.out.print(me.getKey()+": ");
+            System.out.println(me.getValue());
+            up.setParam("literal." + me.getKey(), me.getValue());
+        }
+
+        //up.setParam("literal.id", solrId);
         up.setParam("fmap.content", "file_content");
         //up.setParam("uprefix", "attr_");
         //up.setParam("uprefix", "ignored_");
