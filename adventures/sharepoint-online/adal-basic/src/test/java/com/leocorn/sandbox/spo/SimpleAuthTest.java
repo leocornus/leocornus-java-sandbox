@@ -46,14 +46,25 @@ import junit.framework.TestSuite;
 
 public class SimpleAuthTest extends TestCase {
 
-
+    /**
+     * the configuration file.
+     */
     private Properties conf = new Properties();
+    /**
+     * Solr client object to talk to Solr.
+     */
+    private SolrClient solr;
 
     public SimpleAuthTest(String testName) {
 
         super(testName);
         try {
+            // load configuration file.
             conf = loadConfig();
+
+            // get ready the Solr client.
+            String urlString = conf.getProperty("solr.baseurl");
+            solr = new HttpSolrClient.Builder(urlString).build();
         } catch(IOException e) {
             e.printStackTrace();
         }
@@ -490,9 +501,6 @@ public class SimpleAuthTest extends TestCase {
     private void indexFilesSolrCell(String fileName, Map props) 
       throws IOException, SolrServerException {
       
-        String urlString = conf.getProperty("solr.baseurl");
-        SolrClient solr = new HttpSolrClient.Builder(urlString).build();
-
         ContentStreamUpdateRequest up 
           = new ContentStreamUpdateRequest("/update/extract");
 
