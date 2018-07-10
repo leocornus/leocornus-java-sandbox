@@ -65,6 +65,7 @@ public class SimpleAuthTest extends TestCase {
             conf = loadConfig("conf/spo.properties", "conf/local.properties");
             fmap = loadConfig("conf/fmap.properties", 
                               "conf/local.fmap.properties");
+            System.out.println(fmap);
 
             // get ready the Solr client.
             String urlString = conf.getProperty("solr.baseurl");
