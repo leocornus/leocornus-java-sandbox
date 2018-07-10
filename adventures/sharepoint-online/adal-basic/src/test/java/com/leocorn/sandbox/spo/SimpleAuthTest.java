@@ -65,7 +65,7 @@ public class SimpleAuthTest extends TestCase {
             conf = loadConfig("conf/spo.properties", "conf/local.properties");
             fmap = loadConfig("conf/fmap.properties", 
                               "conf/local.fmap.properties");
-            System.out.println(fmap);
+            //System.out.println(fmap);
 
             // get ready the Solr client.
             String urlString = conf.getProperty("solr.baseurl");
@@ -87,7 +87,7 @@ public class SimpleAuthTest extends TestCase {
 
         //String token = getAuthResult().getAccessToken();
         // starts from group folder.
-        processFolder("Customer Group K");
+        processFolder("Customer Group A");
     }
 
     private String accessToken = "";
@@ -155,6 +155,7 @@ public class SimpleAuthTest extends TestCase {
             String filePath = downloadFile(accessToken, fileUrl);
 
             // update Solr to index this file. SolrJ
+            indexFilesSolrCell(filePath, props);
         }
 
         // get all Folders
@@ -223,6 +224,14 @@ public class SimpleAuthTest extends TestCase {
         props.put("file_name", fileName);
         props.put("file_path", folder + "/" + fileName);
         props.put("file_spo_id", json.getString("OData__x005f_dlc_x005f_DocId"));
+        // set up c4c_type.
+        if(folder.indexOf("Certificate") > 0) {
+            props.put("c4c_type", "certificate");
+        } else if(folder.indexOf("Report") > 0) {
+            props.put("c4c_type", "test_report");
+        } else {
+            props.put("c4c_type", "other");
+        }
 
         System.out.println(props);
         return props;
@@ -430,7 +439,7 @@ public class SimpleAuthTest extends TestCase {
     /**
      * simple test case to login and get access token.
      */
-    public void testGetToken() {
+    public void notestGetToken() {
 
         AuthenticationResult result = getAuthResult();
         assertNotNull(result);
