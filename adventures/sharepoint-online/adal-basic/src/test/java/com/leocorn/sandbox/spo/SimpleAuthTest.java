@@ -13,6 +13,7 @@ import java.net.URLEncoder;
 import java.net.URLDecoder;
 
 import java.util.Properties;
+import java.util.Enumeration;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -50,6 +51,7 @@ public class SimpleAuthTest extends TestCase {
      * the configuration file.
      */
     private Properties conf = new Properties();
+    private Properties fmap = new Properties();
     /**
      * Solr client object to talk to Solr.
      */
@@ -61,6 +63,8 @@ public class SimpleAuthTest extends TestCase {
         try {
             // load configuration file.
             conf = loadConfig("conf/spo.properties", "conf/local.properties");
+            fmap = loadConfig("conf/fmap.properties", 
+                              "conf/local.fmap.properties");
 
             // get ready the Solr client.
             String urlString = conf.getProperty("solr.baseurl");
@@ -515,14 +519,19 @@ public class SimpleAuthTest extends TestCase {
         }
 
         //up.setParam("literal.id", solrId);
-        up.setParam("fmap.content", "file_content");
-        up.setParam("fmap.stream_size", "file_size");
-        up.setParam("fmap.content_type", "file_content_type");
-        up.setParam("fmap.doc_type", "file_doc_type");
-        up.setParam("fmap.dcterms_created", "file_created_date");
-        up.setParam("fmap.last_modified", "file_last_modified");
+        //up.setParam("fmap.content", "file_content");
+        //up.setParam("fmap.stream_size", "file_size");
+        //up.setParam("fmap.content_type", "file_content_type");
+        //up.setParam("fmap.doc_type", "file_doc_type");
+        //up.setParam("fmap.dcterms_created", "file_created_date");
+        //up.setParam("fmap.last_modified", "file_last_modified");
         //up.setParam("uprefix", "attr_");
         //up.setParam("uprefix", "ignored_");
+        Enumeration<?> fmapNames = fmap.propertyNames();
+        while(fmapNames.hasMoreElements()) {
+            String fmapName = (String) fmapNames.nextElement();
+            up.setParam(fmapName, fmap.getProperty(fmapName));
+        }
 
         up.setAction(AbstractUpdateRequest.ACTION.COMMIT, true, true);
 
