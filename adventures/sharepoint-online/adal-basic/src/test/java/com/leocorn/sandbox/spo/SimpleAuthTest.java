@@ -60,7 +60,7 @@ public class SimpleAuthTest extends TestCase {
         super(testName);
         try {
             // load configuration file.
-            conf = loadConfig();
+            conf = loadConfig("conf/spo.properties", "conf/local.properties");
 
             // get ready the Solr client.
             String urlString = conf.getProperty("solr.baseurl");
@@ -532,38 +532,40 @@ public class SimpleAuthTest extends TestCase {
     /**
      * a utility method to load configuration files.
      */
-    private Properties loadConfig() throws IOException {
+    private Properties loadConfig(String baseFile, 
+                                  String localFile) throws IOException {
+
         /**
          * file basic.properties will have the following content:
          */
-        String filename = "conf/spo.properties";
-        String localFilename = "conf/local.properties";
-        Properties conf = new Properties();
+        //String filename = "conf/spo.properties";
+        //String localFilename = "conf/local.properties";
+        Properties retConf = new Properties();
         InputStream input = null;
 
         try {
             // load the basic properties.
-            input = getClass().getClassLoader().getResourceAsStream(filename);
+            input = getClass().getClassLoader().getResourceAsStream(baseFile);
             Properties basic = new Properties();
             basic.load(input);
             input.close();
-            conf.putAll(basic);
+            retConf.putAll(basic);
 
             // load the local properties.
-            input = getClass().getClassLoader().getResourceAsStream(localFilename);
+            input = getClass().getClassLoader().getResourceAsStream(localFile);
             if(input != null) {
                 Properties local = new Properties();
                 local.load(input);
                 input.close();
-                conf.putAll(local);
+                retConf.putAll(local);
             } else {
                 // null input stream means the file is not exist.
                 // just skip it!
             }
 
-            assertEquals("sharepoint online", conf.getProperty("name"));
+            //assertEquals("sharepoint online", retConf.getProperty("name"));
 
-            return conf;
+            return retConf;
         } finally{
             if(input!=null){
                 try {
