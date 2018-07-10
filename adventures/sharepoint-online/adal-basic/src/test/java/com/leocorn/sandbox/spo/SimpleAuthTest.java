@@ -491,8 +491,11 @@ public class SimpleAuthTest extends TestCase {
 
         //up.setParam("literal.id", solrId);
 
-        up.setParam("uprefix", "attr_");
+        up.setParam("literal.project_id", "000078293721");
+        up.setParam("literal.c4c_type", "other");
         up.setParam("fmap.content", "file_content");
+        //up.setParam("uprefix", "attr_");
+        //up.setParam("uprefix", "ignored_");
 
         up.setAction(AbstractUpdateRequest.ACTION.COMMIT, true, true);
 
