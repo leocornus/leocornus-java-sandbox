@@ -508,6 +508,11 @@ public class SimpleAuthTest extends TestCase {
 
         //up.setParam("literal.id", solrId);
         up.setParam("fmap.content", "file_content");
+        up.setParam("fmap.stream_size", "file_size");
+        up.setParam("fmap.content_type", "file_content_type");
+        up.setParam("fmap.doc_type", "file_doc_type");
+        up.setParam("fmap.dcterms_created", "file_created_date");
+        up.setParam("fmap.last_modified", "file_last_modified");
         //up.setParam("uprefix", "attr_");
         //up.setParam("uprefix", "ignored_");
 
