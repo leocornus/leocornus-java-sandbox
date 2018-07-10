@@ -83,7 +83,7 @@ public class SimpleAuthTest extends TestCase {
     /**
      * quick test for iteration.
      */
-    public void notestIteration() throws Exception {
+    public void testIteration() throws Exception {
 
         //String token = getAuthResult().getAccessToken();
         // starts from group folder.
@@ -116,7 +116,7 @@ public class SimpleAuthTest extends TestCase {
         // build folderUrl.
         String folderUrl = conf.getProperty("target.source") + 
                            conf.getProperty("sharepoint.site") + 
-                           "/_api/web/getFolderByServerRelativeUrl('" +
+                           "/_api/web/GetFolderByServerRelativeUrl('" +
             URLEncoder.encode(folderName, "utf-8").replace("+", "%20") + "')";
         // get Files.
         String res = getResponse(accessToken, folderUrl + "/Files");
@@ -136,6 +136,9 @@ public class SimpleAuthTest extends TestCase {
                 System.out.println("Could not find file name, skip ...");
                 continue;
             }
+            if(fileName == "") {
+                System.out.println("File name is empty, skip ...");
+            }
             // odata.id will have the full URL.
             //String fileUrl = oneItem.getString("odata.id");
             String encodedFileName = 
@@ -154,8 +157,17 @@ public class SimpleAuthTest extends TestCase {
             // the file path to local 
             String filePath = downloadFile(accessToken, fileUrl);
 
-            // update Solr to index this file. SolrJ
-            indexFilesSolrCell(filePath, props);
+            if(filePath == null || props.isEmpty()) {
+                System.out.println("No file downloaded! Skip ...");
+            } else {
+
+                try {
+                // update Solr to index this file. SolrJ
+                indexFilesSolrCell(filePath, props);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
         // get all Folders
@@ -199,18 +211,25 @@ public class SimpleAuthTest extends TestCase {
     private Map getProperties(String token, String propertyUrl) 
         throws Exception {
 
+        System.out.println(propertyUrl);
+
         String res = getResponse(token, propertyUrl);
+        Map props = new HashMap();
+        if(res == null) {
+            return props;
+        }
         JSONObject json = new JSONObject(res);
         //System.out.println(json.toString(2));
 
-        Map props = new HashMap();
         props.put("customer_id", json.getString("CustomerNumber"));
         props.put("customer_name", json.getString("CustomerName"));
         props.put("project_id", json.getString("ProjectID"));
         props.put("project_status", json.getString("ProjectStatus"));
-        props.put("certificate_id", json.getString("CertificateNumber"));
+        props.put("certificate_id", String.valueOf(json.getInt("CertificateNumber")));
         props.put("master_contract_number", json.getString("MasterContractNumber"));
-        props.put("project_order", json.getString("Order"));
+        if(json.has("Order")) {
+            props.put("project_order", json.getString("Order"));
+        }
         props.put("security_classification", json.getString("SecurityClassification"));
         // TODO: parse this to extract folder names.
         // we only care about customer group and customer foler.
@@ -486,11 +505,12 @@ public class SimpleAuthTest extends TestCase {
     /**
      * test the index files
      */
-    public void testIndexFilesSolrCell() throws Exception {
+    public void notestIndexFilesSolrCell() throws Exception {
 
         String token = getAuthResult().getAccessToken();
         // view a file properties, which will have all metadata.
-        String fileUri = "/_api/web/GetFolderByServerRelativeUrl('Customer%20Group%20K/Karl%20Dungs%20Inc%20-%200004507796/000070008273')/Files('0000125314_QIP_0000157406.pdf')";
+        //String fileUri = "/_api/web/GetFolderByServerRelativeUrl('Customer%20Group%20K/Karl%20Dungs%20Inc%20-%200004507796/000070008273')/Files('0000125314_QIP_0000157406.pdf')";
+        String fileUri = "/_api/web/GetFolderByServerRelativeUrl('Customer%20Group%20K/Kiwa-Gastec%20Certification%20-%200004728601/0002326081')/Files('DSCN1097.JPG')";
 
         // get metadata for the file.
         String propertiesUrl = conf.getProperty("target.source") + 
@@ -537,6 +557,7 @@ public class SimpleAuthTest extends TestCase {
         //up.setParam("fmap.last_modified", "file_last_modified");
         //up.setParam("uprefix", "attr_");
         //up.setParam("uprefix", "ignored_");
+
         Enumeration<?> fmapNames = fmap.propertyNames();
         while(fmapNames.hasMoreElements()) {
             String fmapName = (String) fmapNames.nextElement();
