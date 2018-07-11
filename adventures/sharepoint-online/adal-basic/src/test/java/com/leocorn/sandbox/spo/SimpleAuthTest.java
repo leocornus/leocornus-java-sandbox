@@ -148,6 +148,14 @@ public class SimpleAuthTest extends TestCase {
                             String folderUrl) throws Exception {
 
         // TODO: check the folder name!
+        // we only process Certificate and Report folder.
+        if(folderUrl.indexOf("Certificate") < 0 && 
+           folderUrl.indexOf("Report") < 0 &&
+           folderUrl.indexOf("Test") < 0) {
+
+            System.out.println("None Ceritificate and Report Folder, Skip...");
+            return;
+        }
 
         // get Files.
         String res = getResponse(accessToken, folderUrl + "/Files");
