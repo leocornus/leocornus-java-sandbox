@@ -188,6 +188,67 @@ public class SimpleAuthTest extends TestCase {
     }
 
     /**
+     * download the ingest files into solr.
+     */
+    private void indexFiles(String accessToken, 
+                            String folderUrl) throws Exception {
+
+        // TODO: check the folder name!
+
+        // get Files.
+        String res = getResponse(accessToken, folderUrl + "/Files");
+        JSONObject json = new JSONObject(res);
+        // If has Files, download all files 
+        JSONArray filesArray = json.getJSONArray("value");
+        // logging...
+        System.out.println("==== Downloading " + filesArray.length() + " Files");
+        for (int index = 0; index < filesArray.length(); index++) {
+
+            // one file 
+            JSONObject oneFile = filesArray.getJSONObject(index);
+            String fileName = "NONAME";
+            if(oneFile.has("Title") && !oneFile.isNull("Title")) {
+                fileName = oneFile.getString("Title");
+            } else {
+                System.out.println("Could not find file name, skip ...");
+                continue;
+            }
+            if(fileName == "") {
+                System.out.println("File name is empty, skip ...");
+            }
+            // odata.id will have the full URL.
+            //String fileUrl = oneItem.getString("odata.id");
+            String encodedFileName = 
+                URLEncoder.encode(fileName, "utf-8").replace("+", "%20");
+
+            // we need get the metadata for the file.
+            String propertyUrl = 
+                folderUrl + "/Files('" + encodedFileName + "')/Properties";
+            Map props = getProperties(accessToken, propertyUrl);
+            System.out.println(props);
+
+            // get ready the URL for download binary.
+            String fileUrl = 
+                folderUrl + "/Files('" + encodedFileName + "')/$value";
+            //System.out.println(fileUrl);
+            // the file path to local 
+            String filePath = downloadFile(accessToken, fileUrl);
+
+            if(filePath == null || props.isEmpty()) {
+                System.out.println("No file downloaded! Skip ...");
+            } else {
+
+                try {
+                    // update Solr to index this file. SolrJ
+                    indexFilesSolrCell(filePath, props);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    /**
      * test to get metadata SP.PropertyValues for a file.
      */
     public void notestGetProperties() throws Exception {
