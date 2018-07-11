@@ -31,6 +31,7 @@ import com.microsoft.aad.adal4j.AuthenticationResult;
 
 import org.json.JSONObject;
 import org.json.JSONArray;
+import org.json.JSONException;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -162,8 +163,8 @@ public class SimpleAuthTest extends TestCase {
             } else {
 
                 try {
-                // update Solr to index this file. SolrJ
-                indexFilesSolrCell(filePath, props);
+                    // update Solr to index this file. SolrJ
+                    indexFilesSolrCell(filePath, props);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -225,7 +226,11 @@ public class SimpleAuthTest extends TestCase {
         props.put("customer_name", json.getString("CustomerName"));
         props.put("project_id", json.getString("ProjectID"));
         props.put("project_status", json.getString("ProjectStatus"));
-        props.put("certificate_id", String.valueOf(json.getInt("CertificateNumber")));
+        try {
+            props.put("certificate_id", String.valueOf(json.getInt("CertificateNumber")));
+        } catch (JSONException je) {
+            props.put("certificate_id", json.getString("CertificateNumber"));
+        }
         props.put("master_contract_number", json.getString("MasterContractNumber"));
         if(json.has("Order")) {
             props.put("project_order", json.getString("Order"));
