@@ -88,7 +88,8 @@ public class SimpleAuthTest extends TestCase {
 
         //String token = getAuthResult().getAccessToken();
         // starts from group folder.
-        processFolder("Customer Group A");
+        //processFolder("Customer Group A");
+        processFolder(conf.getProperty("start.folder"));
     }
 
     private String accessToken = "";
@@ -385,7 +386,8 @@ public class SimpleAuthTest extends TestCase {
         //conn.setRequestProperty("ContentType","application/json;odata=verbose;");
         //conn.connect();
 
-        String saveDir = "/opt/dev/spo-files";
+        //String saveDir = "/opt/dev/spo-files";
+        String saveDir = conf.getPropery("local.temp.folder");
         String saveFilePath = null;
 
         int httpResponseCode = conn.getResponseCode();
