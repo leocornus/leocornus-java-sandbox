@@ -149,7 +149,7 @@ public class SimpleAuthTest extends TestCase {
 
         // TODO: check the folder name!
         // we only process Certificate and Report folder.
-        if(folderUrl.indexOf("Certificate") < 0 && 
+        if(folderUrl.indexOf("Certificate") < 0 &&
            folderUrl.indexOf("Report") < 0 &&
            folderUrl.indexOf("Test") < 0) {
 
@@ -279,7 +279,7 @@ public class SimpleAuthTest extends TestCase {
         // set up c4c_type.
         if(folder.indexOf("Certificate") > 0) {
             props.put("c4c_type", "certificate");
-        } else if(folder.indexOf("Report") > 0) {
+        } else if(folder.indexOf("Report") > 0 || folder.indexOf("Test") > 0) {
             props.put("c4c_type", "test_report");
         } else {
             props.put("c4c_type", "other");
