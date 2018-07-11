@@ -151,6 +151,11 @@ public class SimpleAuthTest extends TestCase {
 
         // get Files.
         String res = getResponse(accessToken, folderUrl + "/Files");
+        if(res == null) {
+            // no files, skip.
+            // if now res, most of time are because of WRONG url.
+            return;
+        }
         JSONObject json = new JSONObject(res);
         // If has Files, download all files 
         JSONArray filesArray = json.getJSONArray("value");
@@ -387,7 +392,7 @@ public class SimpleAuthTest extends TestCase {
         //conn.connect();
 
         //String saveDir = "/opt/dev/spo-files";
-        String saveDir = conf.getPropery("local.temp.folder");
+        String saveDir = conf.getProperty("local.temp.folder");
         String saveFilePath = null;
 
         int httpResponseCode = conn.getResponseCode();
