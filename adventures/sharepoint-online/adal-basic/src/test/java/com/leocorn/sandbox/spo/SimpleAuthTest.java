@@ -127,6 +127,11 @@ public class SimpleAuthTest extends TestCase {
         // STEP Two: Process folders in this folder.
         // get all Folders
         String res = getResponse(accessToken, folderUrl + "/Folders");
+        if(res == null) {
+            // no folders, skip.
+            // if no res, most of time are because of WRONG url.
+            return;
+        }
         JSONObject json = new JSONObject(res);
         // if has Folders, process each folder by call it self.
         JSONArray jsonArray = json.getJSONArray("value");
@@ -161,7 +166,7 @@ public class SimpleAuthTest extends TestCase {
         String res = getResponse(accessToken, folderUrl + "/Files");
         if(res == null) {
             // no files, skip.
-            // if now res, most of time are because of WRONG url.
+            // if no res, most of time are because of WRONG url.
             return;
         }
         JSONObject json = new JSONObject(res);
