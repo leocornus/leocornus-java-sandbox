@@ -84,7 +84,7 @@ public class SimpleAuthTest extends TestCase {
     /**
      * quick test for iteration.
      */
-    public void testIteration() throws Exception {
+    public void notestIteration() throws Exception {
 
         //String token = getAuthResult().getAccessToken();
         // starts from group folder.
@@ -223,7 +223,7 @@ public class SimpleAuthTest extends TestCase {
     /**
      * test to get metadata SP.PropertyValues for a file.
      */
-    public void notestGetProperties() throws Exception {
+    public void testGetProperties() throws Exception {
         String token = getAuthResult().getAccessToken();
         // view a file properties, which will have all metadata.
         String apiUri = "/_api/web/GetFolderByServerRelativeUrl('Customer%20Group%20K/Karl%20Dungs%20Inc%20-%200004507796/000070008273')/Files('0000125314_QIP_0000157406.pdf')/Properties";
@@ -272,7 +272,7 @@ public class SimpleAuthTest extends TestCase {
         // TODO: parse this to extract folder names.
         // we only care about customer group and customer foler.
         String fullUrl = json.getString("odata.id");
-        props.put("odata_id", fullUrl);
+        props.put("odata_id", fullUrl.substring(0, fullUrl.indexOf("/Properties")));
         String folder = extractFunctionValue(fullUrl, "GetFolderByServerRelativeUrl");
         String[] folders = folder.split("/");
         String fileName = extractFunctionValue(fullUrl, "Files");
