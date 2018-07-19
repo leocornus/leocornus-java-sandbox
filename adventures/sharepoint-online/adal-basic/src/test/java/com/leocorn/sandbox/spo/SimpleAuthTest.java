@@ -257,7 +257,8 @@ public class SimpleAuthTest extends TestCase {
 
         props.put("customer_id", json.getString("CustomerNumber"));
         props.put("customer_name", json.getString("CustomerName"));
-        props.put("project_id", json.getString("ProjectID"));
+        int projectId = Integer.parseInt(json.getString("ProjectID"));
+        props.put("project_id", projectId);
         props.put("project_status", json.getString("ProjectStatus"));
         try {
             props.put("certificate_id", String.valueOf(json.getInt("CertificateNumber")));
@@ -280,14 +281,18 @@ public class SimpleAuthTest extends TestCase {
         props.put("folder_customer", folders[1]);
         props.put("file_name", fileName);
         props.put("file_path", folder + "/" + fileName);
-        props.put("file_spo_id", json.getString("OData__x005f_dlc_x005f_DocId"));
+        String spoId = json.getString("OData__x005f_dlc_x005f_DocId");
+        props.put("file_spo_id", spoId);
         // set up c4c_type.
         if(folder.indexOf("Certificate") > 0) {
             props.put("c4c_type", "certificate");
+            props.put("id", "c|" + projectId + "|" + spoId);
         } else if(folder.indexOf("Report") > 0 || folder.indexOf("Test") > 0) {
             props.put("c4c_type", "test_report");
+            props.put("id", "t|" + projectId + "|" + spoId);
         } else {
             props.put("c4c_type", "other");
+            props.put("id", "o|" + projectId + "|" + spoId);
         }
 
         System.out.println(props);
