@@ -84,12 +84,15 @@ public class SimpleAuthTest extends TestCase {
     /**
      * quick test for iteration.
      */
-    public void notestIteration() throws Exception {
+    public void testIteration() throws Exception {
 
         //String token = getAuthResult().getAccessToken();
         // starts from group folder.
         //processFolder("Customer Group A");
-        processFolder(conf.getProperty("start.folder"));
+        String[] folders = conf.getProperty("start.folder").split(",");
+        for(int i = 0; i < folders.length; i++) {
+            processFolder(folders[i]);
+        }
     }
 
     private String accessToken = "";
@@ -223,7 +226,7 @@ public class SimpleAuthTest extends TestCase {
     /**
      * test to get metadata SP.PropertyValues for a file.
      */
-    public void testGetProperties() throws Exception {
+    public void notestGetProperties() throws Exception {
         String token = getAuthResult().getAccessToken();
         // view a file properties, which will have all metadata.
         String apiUri = "/_api/web/GetFolderByServerRelativeUrl('Customer%20Group%20K/Karl%20Dungs%20Inc%20-%200004507796/000070008273')/Files('0000125314_QIP_0000157406.pdf')/Properties";
@@ -257,8 +260,7 @@ public class SimpleAuthTest extends TestCase {
 
         props.put("customer_id", json.getString("CustomerNumber"));
         props.put("customer_name", json.getString("CustomerName"));
-        int projectId = Integer.parseInt(json.getString("ProjectID"));
-        props.put("project_id", projectId);
+        props.put("project_id", json.getString("ProjectID"));
         props.put("project_status", json.getString("ProjectStatus"));
         try {
             props.put("certificate_id", String.valueOf(json.getInt("CertificateNumber")));
@@ -282,6 +284,12 @@ public class SimpleAuthTest extends TestCase {
         props.put("file_name", fileName);
         props.put("file_path", folder + "/" + fileName);
         String spoId = json.getString("OData__x005f_dlc_x005f_DocId");
+        int projectId = 0;
+        try {
+            projectId = Integer.parseInt(json.getString("ProjectID"));
+        } catch (Exception e) {
+            e.printStackTrace(System.out);
+        }
         props.put("file_spo_id", spoId);
         // set up c4c_type.
         if(folder.indexOf("Certificate") > 0) {
