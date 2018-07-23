@@ -58,6 +58,11 @@ public class SimpleAuthTest extends TestCase {
      */
     private SolrClient solr;
 
+    /**
+     * folder count.
+     */
+    private int folderCount = 0;
+
     public SimpleAuthTest(String testName) {
 
         super(testName);
@@ -93,6 +98,8 @@ public class SimpleAuthTest extends TestCase {
         for(int i = 0; i < folders.length; i++) {
             processFolder(folders[i]);
         }
+
+        System.out.println("Total Folders" + folderCount);
     }
 
     private String accessToken = "";
@@ -103,6 +110,8 @@ public class SimpleAuthTest extends TestCase {
      */
     public void processFolder(String folderName) 
         throws Exception {
+
+        folderCount ++;
 
         // get accessToken 
         if(accessToken.isEmpty()) {
@@ -125,7 +134,7 @@ public class SimpleAuthTest extends TestCase {
             URLEncoder.encode(folderName, "utf-8").replace("+", "%20") + "')";
 
         // STEP One: process files in this folder.
-        indexFiles(accessToken, folderUrl);
+        //indexFiles(accessToken, folderUrl);
 
         // STEP Two: Process folders in this folder.
         // get all Folders
