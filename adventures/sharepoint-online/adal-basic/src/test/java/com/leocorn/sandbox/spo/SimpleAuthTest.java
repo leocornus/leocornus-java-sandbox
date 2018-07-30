@@ -94,7 +94,7 @@ public class SimpleAuthTest extends TestCase {
         //String token = getAuthResult().getAccessToken();
         // starts from group folder.
         //processFolder("Customer Group A");
-        String[] folders = conf.getProperty("start.folder").split(",");
+        String[] folders = conf.getProperty("start.folder").split("==");
         for(int i = 0; i < folders.length; i++) {
             processFolder(folders[i]);
         }
@@ -134,7 +134,7 @@ public class SimpleAuthTest extends TestCase {
             URLEncoder.encode(folderName, "utf-8").replace("+", "%20") + "')";
 
         // STEP One: process files in this folder.
-        //indexFiles(accessToken, folderUrl);
+        indexFiles(accessToken, folderUrl);
 
         // STEP Two: Process folders in this folder.
         // get all Folders
@@ -267,20 +267,44 @@ public class SimpleAuthTest extends TestCase {
         JSONObject json = new JSONObject(res);
         //System.out.println(json.toString(2));
 
-        props.put("customer_id", json.getString("CustomerNumber"));
-        props.put("customer_name", json.getString("CustomerName"));
-        props.put("project_id", json.getString("ProjectID"));
-        props.put("project_status", json.getString("ProjectStatus"));
-        try {
-            props.put("certificate_id", String.valueOf(json.getInt("CertificateNumber")));
-        } catch (JSONException je) {
-            props.put("certificate_id", json.getString("CertificateNumber"));
+        if(json.has("CustomerNumber")) {
+            props.put("customer_id", json.getString("CustomerNumber"));
+        } else {
+            props.put("customer_id", "1");
         }
-        props.put("master_contract_number", json.getString("MasterContractNumber"));
+        if(json.has("CustomerName")) {
+            props.put("customer_name", json.getString("CustomerName"));
+        } else {
+            props.put("customer_name", "NONAME");
+        }
+        if(json.has("ProjectID")) {
+            props.put("project_id", json.getString("ProjectID"));
+        } else {
+            props.put("project_id", "0");
+        }
+        if(json.has("ProjectStatus")) {
+            props.put("project_status", json.getString("ProjectStatus"));
+        }
+        if(json.has("CertificateNumber")) {
+            try {
+                props.put("certificate_id", String.valueOf(json.getInt("CertificateNumber")));
+            } catch (JSONException je) {
+                props.put("certificate_id", json.getString("CertificateNumber"));
+            }
+        } else {
+            props.put("certificate_id", "0");
+        }
+        if(json.has("master_contract_number")) {
+            props.put("master_contract_number", json.getString("MasterContractNumber"));
+        } else {
+            props.put("master_contract_number", "0");
+        }
         if(json.has("Order")) {
             props.put("project_order", json.getString("Order"));
         }
-        props.put("security_classification", json.getString("SecurityClassification"));
+        if(json.has("SecurityClassification")) {
+            props.put("security_classification", json.getString("SecurityClassification"));
+        }
         // TODO: parse this to extract folder names.
         // we only care about customer group and customer foler.
         String fullUrl = json.getString("odata.id");
@@ -292,7 +316,12 @@ public class SimpleAuthTest extends TestCase {
         props.put("folder_customer", folders[1]);
         props.put("file_name", fileName);
         props.put("file_path", folder + "/" + fileName);
-        String spoId = json.getString("OData__x005f_dlc_x005f_DocId");
+        String spoId = "00000000";
+        String docId = fileName;
+        if(json.has("OData__x005f_dlc_x005f_DocId")) {
+            spoId = json.getString("OData__x005f_dlc_x005f_DocId");
+            docId = spoId;
+        } 
         int projectId = 0;
         try {
             projectId = Integer.parseInt(json.getString("ProjectID"));
@@ -303,13 +332,13 @@ public class SimpleAuthTest extends TestCase {
         // set up c4c_type.
         if(folder.indexOf("Certificate") > 0) {
             props.put("c4c_type", "certificate");
-            props.put("id", "c|" + projectId + "|" + spoId);
+            props.put("id", "c|" + projectId + "|" + docId);
         } else if(folder.indexOf("Report") > 0 || folder.indexOf("Test") > 0) {
             props.put("c4c_type", "test_report");
-            props.put("id", "t|" + projectId + "|" + spoId);
+            props.put("id", "t|" + projectId + "|" + docId);
         } else {
             props.put("c4c_type", "other");
-            props.put("id", "o|" + projectId + "|" + spoId);
+            props.put("id", "o|" + projectId + "|" + docId);
         }
 
         System.out.println(props);
@@ -607,6 +636,9 @@ public class SimpleAuthTest extends TestCase {
             System.out.print(me.getKey()+": ");
             System.out.println(me.getValue());
             up.setParam("literal." + me.getKey(), me.getValue());
+            if(me.getValue().trim() == "") {
+                up.setParam("literal.category", "no_" + me.getKey());
+            }
         }
 
         //up.setParam("literal.id", solrId);
