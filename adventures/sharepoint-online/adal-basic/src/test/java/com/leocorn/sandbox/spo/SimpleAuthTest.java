@@ -236,11 +236,15 @@ public class SimpleAuthTest extends TestCase {
      * test to get metadata SP.PropertyValues for a file.
      */
     public void notestGetProperties() throws Exception {
+
         String token = getAuthResult().getAccessToken();
+
         // view a file properties, which will have all metadata.
-        String apiUri = "/_api/web/GetFolderByServerRelativeUrl('Customer%20Group%20K/Karl%20Dungs%20Inc%20-%200004507796/000070008273')/Files('0000125314_QIP_0000157406.pdf')/Properties";
+        //String apiUri = "/_api/web/GetFolderByServerRelativeUrl('Customer%20Group%20K/Karl%20Dungs%20Inc%20-%200004507796/000070008273')/Files('0000125314_QIP_0000157406.pdf')/Properties";
+        String apiUri = "/_api/web/GetFolderByServerRelativeUrl('Customer Group A/A.O. Smith Corporation - 0004514004/0002272679/Test Results and Data')/Files('2186447 TEST ALT FLEX CONN.pdf')/Properties";
         String apiUrl = conf.getProperty("target.source") + 
-                        conf.getProperty("sharepoint.site") + apiUri;
+                        conf.getProperty("sharepoint.site") + 
+                        URLEncoder.encode(apiUri, "utf-8").replace("+", "%20");
         System.out.println(apiUrl);
         Map props = getProperties(token, apiUrl);
         // Returns Set view
@@ -294,7 +298,7 @@ public class SimpleAuthTest extends TestCase {
         } else {
             props.put("certificate_id", "0");
         }
-        if(json.has("master_contract_number")) {
+        if(json.has("MasterContractNumber")) {
             props.put("master_contract_number", json.getString("MasterContractNumber"));
         } else {
             props.put("master_contract_number", "0");
