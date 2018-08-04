@@ -42,6 +42,13 @@ import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.request.ContentStreamUpdateRequest;
 import org.apache.solr.common.util.ContentStreamBase;
 
+import org.apache.tika.exception.TikaException;
+import org.apache.tika.metadata.Metadata;
+import org.apache.tika.parser.AutoDetectParser;
+import org.apache.tika.parser.ParseContext;
+import org.apache.tika.parser.Parser;
+import org.apache.tika.sax.BodyContentHandler;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -89,7 +96,7 @@ public class SimpleAuthTest extends TestCase {
     /**
      * quick test for iteration.
      */
-    public void testIteration() throws Exception {
+    public void notestIteration() throws Exception {
 
         //String token = getAuthResult().getAccessToken();
         // starts from group folder.
@@ -376,7 +383,7 @@ public class SimpleAuthTest extends TestCase {
     /**
      * quick test to download a single file.
      */
-    public void notestDownloadAFile() throws Exception {
+    public void testDownloadAFile() throws Exception {
 
         String token = getAuthResult().getAccessToken();
         // view a file properties, which will have all metadata.
@@ -469,22 +476,27 @@ public class SimpleAuthTest extends TestCase {
             String fileName = "default";
             String disposition = conn.getHeaderField("Content-Disposition");
             String contentType = conn.getContentType();
-            int contentLength = conn.getContentLength();
+            long contentLength = conn.getContentLength();
  
             // extracts file name from URL
             fileName = URLDecoder.decode(
                 fileUrl.substring(fileUrl.lastIndexOf("Files('") + 7,
                                   fileUrl.lastIndexOf("')/$value")),
                 "UTF-8");
+            // opens input stream from the HTTP connection
+            InputStream inputStream = conn.getInputStream();
+
+            if(contentLength < 0) {
+                contentLength = inputStream.available();
+            }
+
+            saveFilePath = saveDir + File.separator + fileName;
  
             System.out.println("Content-Type = " + contentType);
             System.out.println("Content-Disposition = " + disposition);
             System.out.println("Content-Length = " + contentLength);
             System.out.println("fileName = " + fileName);
- 
-            // opens input stream from the HTTP connection
-            InputStream inputStream = conn.getInputStream();
-            saveFilePath = saveDir + File.separator + fileName;
+            System.out.println("localFile = " + saveFilePath);
 
             // opens an output stream to save into file
             FileOutputStream outputStream = new FileOutputStream(saveFilePath);
@@ -509,6 +521,14 @@ public class SimpleAuthTest extends TestCase {
         conn.disconnect();
 
         return saveFilePath;
+    }
+
+    /**
+     * return the InputStream for the file from SPO.
+     */
+    private InputStream getSPOStream(String token, String fileUrl) throws Exception {
+
+        return null;
     }
 
     /**
