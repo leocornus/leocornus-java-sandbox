@@ -44,6 +44,8 @@ import org.apache.solr.common.util.ContentStreamBase;
 
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
+import org.apache.tika.metadata.DublinCore;
+import org.apache.tika.xmp.XMPMetadata;
 import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
@@ -583,15 +585,22 @@ public class SimpleAuthTest extends TestCase {
             // get the input stream from SPO connection.
             AutoDetectParser parser = new AutoDetectParser();
             BodyContentHandler handler = new BodyContentHandler();
-            Metadata metadata = new Metadata();
+            XMPMetadata.registerNamespace( DublinCore.NAMESPACE_URI_DC_TERMS,
+                            DublinCore.PREFIX_DC_TERMS );
+            XMPMetadata metadata = new XMPMetadata();
             parser.parse(inputStream, handler, metadata);
             // the content in text format 
             System.out.println("=============== File Content =================");
-            System.out.println(handler.toString());
+            //System.out.println(handler.toString());
+            System.out.println(handler.toString().length());
 
             // check the metadata.
             System.out.println("============== File Metadata =================");
-            System.out.println(metadata);
+            String[] names = metadata.names();
+            for(int i = 0; i < names.length; i ++) {
+                System.out.print(names[i] + " = ");
+                System.out.println(metadata.get(names[i]));;
+            }
 
             // close the input stream.
             inputStream.close();
