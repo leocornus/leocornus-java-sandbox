@@ -532,8 +532,16 @@ public class SimpleAuthTest extends TestCase {
 
         String token = getAuthResult().getAccessToken();
         // view a file properties, which will have all metadata.
-        String apiUri = "/_api/web/GetFolderByServerRelativeUrl('Customer%20Group%20K/Karl%20Dungs%20Inc%20-%200004507796/000070008273')/Files('0000125314_QIP_0000157406.pdf')/$value";
-        String apiUrl = conf.getProperty("target.source") + 
+        String folder = "Customer Group K/Karl Dungs Inc - 0004507796/000070008273";
+        String file = "e125314 - CLE378 - Karl Dungs - More Info Page.xlsm";
+        //String file = "0000125314_QIP_0000157406.pdf";
+        String apiUri = "/_api/web/GetFolderByServerRelativeUrl('" + 
+                    URLEncoder.encode(folder, "utf-8").replace("+", "%20") +
+                    "')/Files('" + 
+                    URLEncoder.encode(file, "utf-8").replace("+", "%20") +
+                    "')/$value";
+
+        String apiUrl = conf.getProperty("target.source") +
                         conf.getProperty("sharepoint.site") + apiUri;
         System.out.println(apiUrl);
 
@@ -584,10 +592,12 @@ public class SimpleAuthTest extends TestCase {
 
             // get the input stream from SPO connection.
             AutoDetectParser parser = new AutoDetectParser();
-            BodyContentHandler handler = new BodyContentHandler();
-            XMPMetadata.registerNamespace( DublinCore.NAMESPACE_URI_DC_TERMS,
-                            DublinCore.PREFIX_DC_TERMS );
-            XMPMetadata metadata = new XMPMetadata();
+            // set the write limit to -1 to make is unlimited.
+            BodyContentHandler handler = new BodyContentHandler(-1);
+            //XMPMetadata.registerNamespace( DublinCore.NAMESPACE_URI_DC_TERMS,
+            //                DublinCore.PREFIX_DC_TERMS );
+            //XMPMetadata metadata = new XMPMetadata();
+            Metadata metadata = new Metadata();
             parser.parse(inputStream, handler, metadata);
             // the content in text format 
             System.out.println("=============== File Content =================");
