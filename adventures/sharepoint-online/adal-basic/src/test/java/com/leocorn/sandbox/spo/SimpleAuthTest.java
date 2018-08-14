@@ -532,9 +532,22 @@ public class SimpleAuthTest extends TestCase {
 
         String token = getAuthResult().getAccessToken();
         // view a file properties, which will have all metadata.
-        String folder = "Customer Group K/Karl Dungs Inc - 0004507796/000070008273";
-        String file = "e125314 - CLE378 - Karl Dungs - More Info Page.xlsm";
+        // large PDF
+        //String folder = "Customer Group L/LG Electronics, Inc. - 0004519978/0002599597/Shared Documents/Report Attachments";
+        //String file = "1957460 Att 1 Fig. 1 - 34.pdf";
+
+        //String folder = "Customer Group K/Karl Dungs Inc - 0004507796/000070008273";
+        //String file = "e125314 - CLE378 - Karl Dungs - More Info Page.xlsm";
         //String file = "0000125314_QIP_0000157406.pdf";
+
+        // doc
+        //String folder = "Customer Group F/Fluke Corporation - 0004518553/000070059497/Shared Documents/Report Attachments";
+        //String file = "2022012 Att2_IEC_61010-1_3rd_Ed_Checklist.doc";
+
+        // large DOC
+        String folder = "Customer Group F/Fluke Corporation - 0004518553/0002460695/Test Results and Data";
+        String file = "2460695 UL 2054 test data 2010-11-22.doc";
+
         String apiUri = "/_api/web/GetFolderByServerRelativeUrl('" + 
                     URLEncoder.encode(folder, "utf-8").replace("+", "%20") +
                     "')/Files('" + 
