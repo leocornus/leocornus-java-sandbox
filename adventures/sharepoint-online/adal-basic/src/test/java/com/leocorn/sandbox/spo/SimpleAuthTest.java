@@ -231,7 +231,7 @@ public class SimpleAuthTest extends TestCase {
 
                 try {
                     // update Solr to index this file. SolrJ
-                    indexFilesSolrCell(filePath, props);
+                    indexFileSolrCell(filePath, props);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -640,13 +640,13 @@ public class SimpleAuthTest extends TestCase {
         System.out.println(downloadUrl);
         String localFile = downloadFile(token, downloadUrl);
 
-        indexFilesSolrCell(localFile, props);
+        indexFileSolrCell(localFile, props);
     }
 
     /**
      * index file using ExtractingRequestHandler.
      */
-    private void indexFilesSolrCell(String fileName, Map props) 
+    private void indexFileSolrCell(String fileName, Map props) 
       throws IOException, SolrServerException {
       
         ContentStreamUpdateRequest up 
