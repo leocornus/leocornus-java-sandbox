@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.InputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 
@@ -593,14 +595,23 @@ public class SimpleAuthTest extends TestCase {
                 "UTF-8");
             // opens input stream from the HTTP connection
             InputStream inputStream = conn.getInputStream();
+            //InputStream sizeIS = inputStream.clone();
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-            if(contentLength < 0) {
-                contentLength = inputStream.available();
+            // calculate the size.
+            int size = 0;
+            int chunk = 0;
+            byte[] buffer = new byte[1024];
+            while((chunk = inputStream.read(buffer)) > -1){
+                size += chunk;
+                baos.write(buffer, 0, chunk);
             }
+            baos.flush();
+            System.out.println("file_size = " + size);
+            System.out.println("Array Size = " + baos.toByteArray().length);
 
             System.out.println("Content-Type = " + contentType);
             System.out.println("Content-Disposition = " + disposition);
-            System.out.println("Content-Length = " + contentLength);
             System.out.println("fileName = " + fileName);
 
             // get the input stream from SPO connection.
@@ -611,7 +622,7 @@ public class SimpleAuthTest extends TestCase {
             //                DublinCore.PREFIX_DC_TERMS );
             //XMPMetadata metadata = new XMPMetadata();
             Metadata metadata = new Metadata();
-            parser.parse(inputStream, handler, metadata);
+            parser.parse(new ByteArrayInputStream(baos.toByteArray()), handler, metadata);
             // the content in text format 
             System.out.println("=============== File Content =================");
             //System.out.println(handler.toString());
