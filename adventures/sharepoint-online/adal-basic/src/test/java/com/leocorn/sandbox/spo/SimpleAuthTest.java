@@ -383,7 +383,7 @@ public class SimpleAuthTest extends TestCase {
     /**
      * quick test to download a single file.
      */
-    public void testDownloadAFile() throws Exception {
+    public void notestDownloadAFile() throws Exception {
 
         String token = getAuthResult().getAccessToken();
         // view a file properties, which will have all metadata.
@@ -524,9 +524,87 @@ public class SimpleAuthTest extends TestCase {
     }
 
     /**
-     * return the InputStream for the file from SPO.
+     * quick test to download a single file.
      */
-    private InputStream getSPOStream(String token, String fileUrl) throws Exception {
+    public void testParseFile() throws Exception {
+
+        String token = getAuthResult().getAccessToken();
+        // view a file properties, which will have all metadata.
+        String apiUri = "/_api/web/GetFolderByServerRelativeUrl('Customer%20Group%20K/Karl%20Dungs%20Inc%20-%200004507796/000070008273')/Files('0000125314_QIP_0000157406.pdf')/$value";
+        String apiUrl = conf.getProperty("target.source") + 
+                        conf.getProperty("sharepoint.site") + apiUri;
+        System.out.println(apiUrl);
+
+        parseFile(token, apiUrl);
+    }
+
+    /**
+     * using Tika to parse the file:
+     * - extract the metadata and 
+     * - convert the structured file to text.
+     */
+    private Map parseFile(String token, String fileUrl) throws Exception {
+
+        // use the token to connect to SPO
+        URL url = new URL(fileUrl); 
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("GET");
+        conn.setRequestProperty("Authorization", "Bearer " + token);
+        conn.setRequestProperty("Accept","application/json;odata=verbose;");
+        //conn.setRequestProperty("Accept","application/json;");
+        //conn.setRequestProperty("ContentType","application/json;odata=verbose;");
+        //conn.connect();
+
+        int httpResponseCode = conn.getResponseCode();
+        if(httpResponseCode == 200) {
+            // try to find the file name.
+            String fileName = "default";
+            String disposition = conn.getHeaderField("Content-Disposition");
+            String contentType = conn.getContentType();
+            long contentLength = conn.getContentLength();
+ 
+            // extracts file name from URL
+            fileName = URLDecoder.decode(
+                fileUrl.substring(fileUrl.lastIndexOf("Files('") + 7,
+                                  fileUrl.lastIndexOf("')/$value")),
+                "UTF-8");
+            // opens input stream from the HTTP connection
+            InputStream inputStream = conn.getInputStream();
+
+            if(contentLength < 0) {
+                contentLength = inputStream.available();
+            }
+
+            System.out.println("Content-Type = " + contentType);
+            System.out.println("Content-Disposition = " + disposition);
+            System.out.println("Content-Length = " + contentLength);
+            System.out.println("fileName = " + fileName);
+
+            // get the input stream from SPO connection.
+            AutoDetectParser parser = new AutoDetectParser();
+            BodyContentHandler handler = new BodyContentHandler();
+            Metadata metadata = new Metadata();
+            parser.parse(inputStream, handler, metadata);
+            // the content in text format 
+            System.out.println("=============== File Content =================");
+            System.out.println(handler.toString());
+
+            // check the metadata.
+            System.out.println("============== File Metadata =================");
+            System.out.println(metadata);
+
+            // close the input stream.
+            inputStream.close();
+ 
+            System.out.println("File Parsed!");
+
+        } else {
+            System.out.println(String.format("Connection returned HTTP code: %s with message: %s",
+                    httpResponseCode, conn.getResponseMessage()));
+            System.out.println(fileUrl);
+        }
+
+        conn.disconnect();
 
         return null;
     }
