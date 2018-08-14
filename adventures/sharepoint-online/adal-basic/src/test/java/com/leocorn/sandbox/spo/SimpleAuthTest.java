@@ -44,6 +44,7 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.request.ContentStreamUpdateRequest;
+import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.util.ContentStreamBase;
 
 import org.apache.tika.exception.TikaException;
@@ -570,7 +571,7 @@ public class SimpleAuthTest extends TestCase {
      * - extract the metadata and 
      * - convert the structured file to text.
      */
-    private Map parseFile(String token, String fileUrl) throws Exception {
+    private Metadata parseFile(String token, String fileUrl) throws Exception {
 
         // use the token to connect to SPO
         URL url = new URL(fileUrl); 
@@ -581,6 +582,11 @@ public class SimpleAuthTest extends TestCase {
         //conn.setRequestProperty("Accept","application/json;");
         //conn.setRequestProperty("ContentType","application/json;odata=verbose;");
         //conn.connect();
+
+        //XMPMetadata.registerNamespace( DublinCore.NAMESPACE_URI_DC_TERMS,
+        //                DublinCore.PREFIX_DC_TERMS );
+        //XMPMetadata metadata = new XMPMetadata();
+        Metadata metadata = new Metadata();
 
         int httpResponseCode = conn.getResponseCode();
         if(httpResponseCode == 200) {
@@ -600,6 +606,7 @@ public class SimpleAuthTest extends TestCase {
             //InputStream sizeIS = inputStream.clone();
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
+            // ======================== file size ===========================
             // calculate the size.
             int size = 0;
             int chunk = 0;
@@ -616,6 +623,8 @@ public class SimpleAuthTest extends TestCase {
             System.out.println("Content-Disposition = " + disposition);
             System.out.println("fileName = " + fileName);
 
+            // ======================== MD5 Hash =============================
+            // generate the MD5 hash for the file content.
             String digest = DigestUtils.md5Hex(new ByteArrayInputStream(baos.toByteArray()));
             System.out.println("Digest = " + digest);
 
@@ -623,21 +632,25 @@ public class SimpleAuthTest extends TestCase {
             AutoDetectParser parser = new AutoDetectParser();
             // set the write limit to -1 to make is unlimited.
             BodyContentHandler handler = new BodyContentHandler(-1);
-            //XMPMetadata.registerNamespace( DublinCore.NAMESPACE_URI_DC_TERMS,
-            //                DublinCore.PREFIX_DC_TERMS );
-            //XMPMetadata metadata = new XMPMetadata();
-            Metadata metadata = new Metadata();
+            // metadata is defined at beginning...
             parser.parse(new ByteArrayInputStream(baos.toByteArray()), handler, metadata);
+
+            // ========================== add extra metadata.
+            metadata.add("file_size", String.valueOf(size));
+            metadata.add("file_hash", digest);
             // the content in text format 
             System.out.println("=============== File Content =================");
             //System.out.println(handler.toString());
+            metadata.add("file_content", handler.toString());
             System.out.println(handler.toString().length());
 
             // check the metadata.
             System.out.println("============== File Metadata =================");
             String[] names = metadata.names();
             for(int i = 0; i < names.length; i ++) {
-                System.out.print(names[i] + " = ");
+                String wellName = names[i].toLowerCase().
+                    replaceAll("-", "_").replaceAll(":", "_");
+                System.out.print(wellName + " = ");
                 System.out.println(metadata.get(names[i]));;
             }
 
@@ -654,7 +667,7 @@ public class SimpleAuthTest extends TestCase {
 
         conn.disconnect();
 
-        return null;
+        return metadata;
     }
 
     /**
@@ -810,6 +823,47 @@ public class SimpleAuthTest extends TestCase {
         up.setAction(AbstractUpdateRequest.ACTION.COMMIT, true, true);
 
         solr.request(up);
+    }
+
+    /**
+     * test index file using SolrJ
+     */
+    public void testIndexFileSolrJ() throws Exception {
+
+        
+    }
+
+    /**
+     * index file using ExtractingRequestHandler.
+     */
+    private void indexFileSolrJ(Metadata meta, Map props) 
+      throws IOException, SolrServerException {
+      
+        SolrInputDocument solrDoc = new SolrInputDocument();
+
+        // add properties, from the SPO metadata.
+        Set< Map.Entry< String,String> > st = props.entrySet();   
+
+        for (Map.Entry< String,String> me:st) {
+            System.out.print(me.getKey()+": ");
+            System.out.println(me.getValue());
+            solrDoc.addField(me.getKey(), me.getValue());
+            if(me.getValue().trim() == "") {
+                solrDoc.addField("category", "no_" + me.getKey());
+            }
+        }
+
+        // process tika metadata
+        String[] names = meta.names();
+        for(int i = 0; i < names.length; i++) {
+
+            String wellName = names[i].toLowerCase().
+                replaceAll("-", "_").replaceAll(":", "_");
+            solrDoc.addField(wellName, meta.get(names[i]));
+        }
+
+        solr.add(solrDoc);
+        solr.commit();
     }
 
     /**
