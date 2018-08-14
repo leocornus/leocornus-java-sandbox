@@ -9,6 +9,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 
+import org.apache.commons.codec.digest.DigestUtils;
+
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -613,6 +615,9 @@ public class SimpleAuthTest extends TestCase {
             System.out.println("Content-Type = " + contentType);
             System.out.println("Content-Disposition = " + disposition);
             System.out.println("fileName = " + fileName);
+
+            String digest = DigestUtils.md5Hex(new ByteArrayInputStream(baos.toByteArray()));
+            System.out.println("Digest = " + digest);
 
             // get the input stream from SPO connection.
             AutoDetectParser parser = new AutoDetectParser();
