@@ -25,6 +25,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Set;
+import java.util.Arrays;
+import java.util.Comparator;
 
 import java.time.LocalDateTime;
 
@@ -533,7 +535,7 @@ public class SimpleAuthTest extends TestCase {
     /**
      * quick test to download a single file.
      */
-    public void notestParseFile() throws Exception {
+    public void testParseFile() throws Exception {
 
         String token = getAuthResult().getAccessToken();
         // view a file properties, which will have all metadata.
@@ -638,21 +640,34 @@ public class SimpleAuthTest extends TestCase {
             // ========================== add extra metadata.
             metadata.add("file_size", String.valueOf(size));
             metadata.add("file_hash", digest);
-            // the content in text format 
-            System.out.println("=============== File Content =================");
-            //System.out.println(handler.toString());
-            metadata.add("file_content", handler.toString());
-            System.out.println(handler.toString().length());
 
             // check the metadata.
             System.out.println("============== File Metadata =================");
             String[] names = metadata.names();
+            // sort the names.
+            // add the comparator to compare by the lower case.
+            Arrays.sort(names, new Comparator<String>() {
+                public int compare(String s1, String s2) {
+                    return s1.toLowerCase().compareTo(s2.toLowerCase());
+                }
+            });
             for(int i = 0; i < names.length; i ++) {
-                String wellName = names[i].toLowerCase().
-                    replaceAll("-", "_").replaceAll(":", "_");
+                // get ready to well formed name.
+                String wellName = names[i].toLowerCase().trim().
+                    replaceAll(" ", "_").
+                    replaceAll("-", "_").
+                    replaceAll(":", "_");
                 System.out.print(wellName + " = ");
                 System.out.println(metadata.get(names[i]));;
             }
+
+            // the content in text format 
+            System.out.println("=============== File Content =================");
+            //System.out.println(handler.toString());
+            metadata.add("file_content", handler.toString());
+            metadata.add("file_content_size", 
+                         String.valueOf(handler.toString().length()));
+            System.out.println(handler.toString().length());
 
             // close the input stream.
             inputStream.close();
@@ -828,7 +843,7 @@ public class SimpleAuthTest extends TestCase {
     /**
      * test index file using SolrJ
      */
-    public void testIndexFileSolrJ() throws Exception {
+    public void notestIndexFileSolrJ() throws Exception {
 
         String token = getAuthResult().getAccessToken();
         // view a file properties, which will have all metadata.
@@ -845,7 +860,8 @@ public class SimpleAuthTest extends TestCase {
         //String file = "2022012 Att2_IEC_61010-1_3rd_Ed_Checklist.doc";
 
         // large DOC
-        String folder = "Customer Group F/Fluke Corporation - 0004518553/0002460695/Test Results and Data";
+        //String folder = "Customer Group F/Fluke Corporation - 0004518553/0002460695/Test Results and Data";
+        String folder = "Customer Group F/Fluke Corporation - 0004518553/0002579396/Test Results and Data";
         String file = "2460695 UL 2054 test data 2010-11-22.doc";
 
         String apiUri = "/_api/web/GetFolderByServerRelativeUrl('" + 
