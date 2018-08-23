@@ -150,7 +150,7 @@ public class SimpleAuthTest extends TestCase {
             URLEncoder.encode(folderName, "utf-8").replace("+", "%20") + "')";
 
         // STEP One: process files in this folder.
-        indexFiles(accessToken, folderUrl);
+        indexFiles(accessToken, folderUrl, "solrcell");
 
         // STEP Two: Process folders in this folder.
         // get all Folders
@@ -178,7 +178,8 @@ public class SimpleAuthTest extends TestCase {
      * download the ingest files into solr.
      */
     private void indexFiles(String accessToken, 
-                            String folderUrl) throws Exception {
+                            String folderUrl
+                            String indexType) throws Exception {
 
         // TODO: check the folder name!
         // we only process Certificate and Report folder.
@@ -230,20 +231,29 @@ public class SimpleAuthTest extends TestCase {
             // get ready the URL for download binary.
             String fileUrl = 
                 folderUrl + "/Files('" + encodedFileName + "')/$value";
-            //System.out.println(fileUrl);
-            // the file path to local 
-            String filePath = downloadFile(accessToken, fileUrl);
 
-            if(filePath == null || props.isEmpty()) {
-                System.out.println("No file downloaded! Skip ...");
-            } else {
+            if(indexType == "solrcell") {
+                //System.out.println(fileUrl);
+                // the file path to local 
+                String filePath = downloadFile(accessToken, fileUrl);
 
-                try {
-                    // update Solr to index this file. SolrJ
-                    indexFileSolrCell(filePath, props);
-                } catch (Exception e) {
-                    e.printStackTrace();
+                if(filePath == null || props.isEmpty()) {
+                    System.out.println("No file downloaded! Skip ...");
+                } else {
+
+                    try {
+                        // update Solr to index this file. SolrJ
+                        indexFileSolrCell(filePath, props);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
+            } else {
+                // using Tika and SolrJ
+                // parse file and convert file content.
+                Metadata meta = parseFile(accessToken, fileUrl);
+                // call SolrJ
+                indexFileSolrJ(meta, props);
             }
         }
     }
@@ -540,8 +550,8 @@ public class SimpleAuthTest extends TestCase {
         String token = getAuthResult().getAccessToken();
         // view a file properties, which will have all metadata.
         // large PDF
-        //String folder = "Customer Group L/LG Electronics, Inc. - 0004519978/0002599597/Shared Documents/Report Attachments";
-        //String file = "1957460 Att 1 Fig. 1 - 34.pdf";
+        String folder = "Customer Group L/LG Electronics, Inc. - 0004519978/0002599597/Shared Documents/Report Attachments";
+        String file = "1957460 Att 1 Fig. 1 - 34.pdf";
 
         //String folder = "Customer Group K/Karl Dungs Inc - 0004507796/000070008273";
         //String file = "e125314 - CLE378 - Karl Dungs - More Info Page.xlsm";
@@ -552,8 +562,8 @@ public class SimpleAuthTest extends TestCase {
         //String file = "2022012 Att2_IEC_61010-1_3rd_Ed_Checklist.doc";
 
         // large DOC
-        String folder = "Customer Group F/Fluke Corporation - 0004518553/0002460695/Test Results and Data";
-        String file = "2460695 UL 2054 test data 2010-11-22.doc";
+        //String folder = "Customer Group F/Fluke Corporation - 0004518553/0002460695/Test Results and Data";
+        //String file = "2460695 UL 2054 test data 2010-11-22.doc";
 
         String apiUri = "/_api/web/GetFolderByServerRelativeUrl('" + 
                     URLEncoder.encode(folder, "utf-8").replace("+", "%20") +
