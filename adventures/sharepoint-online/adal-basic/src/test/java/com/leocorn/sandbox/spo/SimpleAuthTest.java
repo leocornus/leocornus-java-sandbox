@@ -178,7 +178,7 @@ public class SimpleAuthTest extends TestCase {
      * download the ingest files into solr.
      */
     private void indexFiles(String accessToken, 
-                            String folderUrl
+                            String folderUrl,
                             String indexType) throws Exception {
 
         // TODO: check the folder name!
