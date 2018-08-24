@@ -69,6 +69,8 @@ public class SimpleAuthTest extends TestCase {
      */
     private Properties conf = new Properties();
     private Properties fmap = new Properties();
+    private Properties tikamap = new Properties();
+
     /**
      * Solr client object to talk to Solr.
      */
@@ -87,6 +89,8 @@ public class SimpleAuthTest extends TestCase {
             conf = loadConfig("conf/spo.properties", "conf/local.properties");
             fmap = loadConfig("conf/fmap.properties", 
                               "conf/local.fmap.properties");
+            tikamap = loadConfig("conf/tikamap.properties", 
+                                 "conf/local.tikamap.properties");
             //System.out.println(fmap);
 
             // get ready the Solr client.
@@ -545,7 +549,7 @@ public class SimpleAuthTest extends TestCase {
     /**
      * quick test to download a single file.
      */
-    public void testParseFile() throws Exception {
+    public void notestParseFile() throws Exception {
 
         String token = getAuthResult().getAccessToken();
         // view a file properties, which will have all metadata.
@@ -853,13 +857,13 @@ public class SimpleAuthTest extends TestCase {
     /**
      * test index file using SolrJ
      */
-    public void notestIndexFileSolrJ() throws Exception {
+    public void testIndexFileSolrJ() throws Exception {
 
         String token = getAuthResult().getAccessToken();
         // view a file properties, which will have all metadata.
         // large PDF
-        //String folder = "Customer Group L/LG Electronics, Inc. - 0004519978/0002599597/Shared Documents/Report Attachments";
-        //String file = "1957460 Att 1 Fig. 1 - 34.pdf";
+        String folder = "Customer Group L/LG Electronics, Inc. - 0004519978/0002599597/Shared Documents/Report Attachments";
+        String file = "1957460 Att 1 Fig. 1 - 34.pdf";
 
         //String folder = "Customer Group K/Karl Dungs Inc - 0004507796/000070008273";
         //String file = "e125314 - CLE378 - Karl Dungs - More Info Page.xlsm";
@@ -871,8 +875,8 @@ public class SimpleAuthTest extends TestCase {
 
         // large DOC
         //String folder = "Customer Group F/Fluke Corporation - 0004518553/0002460695/Test Results and Data";
-        String folder = "Customer Group F/Fluke Corporation - 0004518553/0002579396/Test Results and Data";
-        String file = "2460695 UL 2054 test data 2010-11-22.doc";
+        //String folder = "Customer Group F/Fluke Corporation - 0004518553/0002579396/Test Results and Data";
+        //String file = "2460695 UL 2054 test data 2010-11-22.doc";
 
         String apiUri = "/_api/web/GetFolderByServerRelativeUrl('" + 
                     URLEncoder.encode(folder, "utf-8").replace("+", "%20") +
@@ -900,7 +904,7 @@ public class SimpleAuthTest extends TestCase {
      */
     private void indexFileSolrJ(Metadata meta, Map props) 
       throws IOException, SolrServerException {
-      
+
         SolrInputDocument solrDoc = new SolrInputDocument();
 
         // add properties, from the SPO metadata.
@@ -921,7 +925,15 @@ public class SimpleAuthTest extends TestCase {
 
             String wellName = names[i].toLowerCase().
                 replaceAll("-", "_").replaceAll(":", "_");
-            solrDoc.addField(wellName, meta.get(names[i]));
+            // check the tika metadata mapping configuration.
+            String fieldName = tikamap.getProperty(wellName);
+            if(fieldName != null) {
+                // we find the mapping metadata.
+                solrDoc.addField(fieldName, meta.get(names[i]));
+            } else {
+                // no mapping! add the prefix.
+                solrDoc.addField("tika_" + wellName, meta.get(names[i]));
+            }
         }
 
         solr.add(solrDoc);
