@@ -109,7 +109,7 @@ public class SimpleAuthTest extends TestCase {
     /**
      * quick test for iteration.
      */
-    public void notestIteration() throws Exception {
+    public void testIteration() throws Exception {
 
         //String token = getAuthResult().getAccessToken();
         // starts from group folder.
@@ -154,7 +154,8 @@ public class SimpleAuthTest extends TestCase {
             URLEncoder.encode(folderName, "utf-8").replace("+", "%20") + "')";
 
         // STEP One: process files in this folder.
-        indexFiles(accessToken, folderUrl, "solrcell");
+        //indexFiles(accessToken, folderUrl, "solrcell");
+        indexFiles(accessToken, folderUrl, "solrj");
 
         // STEP Two: Process folders in this folder.
         // get all Folders
@@ -554,8 +555,8 @@ public class SimpleAuthTest extends TestCase {
         String token = getAuthResult().getAccessToken();
         // view a file properties, which will have all metadata.
         // large PDF
-        String folder = "Customer Group L/LG Electronics, Inc. - 0004519978/0002599597/Shared Documents/Report Attachments";
-        String file = "1957460 Att 1 Fig. 1 - 34.pdf";
+        //String folder = "Customer Group L/LG Electronics, Inc. - 0004519978/0002599597/Shared Documents/Report Attachments";
+        //String file = "1957460 Att 1 Fig. 1 - 34.pdf";
 
         //String folder = "Customer Group K/Karl Dungs Inc - 0004507796/000070008273";
         //String file = "e125314 - CLE378 - Karl Dungs - More Info Page.xlsm";
@@ -568,6 +569,10 @@ public class SimpleAuthTest extends TestCase {
         // large DOC
         //String folder = "Customer Group F/Fluke Corporation - 0004518553/0002460695/Test Results and Data";
         //String file = "2460695 UL 2054 test data 2010-11-22.doc";
+
+        // large tif file.
+        String folder = "Customer Group H/Hubbell Incorporated (Delaware) - 0004722791/0002123482/Test Results and Data";
+        String file = "UL_PROJECT_07ME12446_DR20TR.tif";
 
         String apiUri = "/_api/web/GetFolderByServerRelativeUrl('" + 
                     URLEncoder.encode(folder, "utf-8").replace("+", "%20") +
@@ -652,7 +657,7 @@ public class SimpleAuthTest extends TestCase {
             parser.parse(new ByteArrayInputStream(baos.toByteArray()), handler, metadata);
 
             // ========================== add extra metadata.
-            metadata.add("file_size", String.valueOf(size));
+            metadata.add("correct_file_size", String.valueOf(size));
             metadata.add("file_hash", digest);
 
             // check the metadata.
@@ -859,7 +864,7 @@ public class SimpleAuthTest extends TestCase {
     /**
      * test index file using SolrJ
      */
-    public void testIndexFileSolrJ() throws Exception {
+    public void notestIndexFileSolrJ() throws Exception {
 
         String token = getAuthResult().getAccessToken();
         // view a file properties, which will have all metadata.
@@ -925,16 +930,23 @@ public class SimpleAuthTest extends TestCase {
         String[] names = meta.names();
         for(int i = 0; i < names.length; i++) {
 
-            String wellName = names[i].toLowerCase().
-                replaceAll("-", "_").replaceAll(":", "_");
+            String wellName = names[i].toLowerCase().trim().
+                replaceAll(" ", "_").
+                replaceAll("-", "_").
+                replaceAll(":", "_");
             // check the tika metadata mapping configuration.
             String fieldName = tikamap.getProperty(wellName);
-            if(fieldName != null) {
-                // we find the mapping metadata.
-                solrDoc.addField(fieldName, meta.get(names[i]));
-            } else {
+            // the == will jjjjjjjjj
+            if(fieldName == null) {
                 // no mapping! add the prefix.
                 solrDoc.addField("tika_" + wellName, meta.get(names[i]));
+            } else {
+                if(fieldName.equals("IGNORE")) {
+                    System.out.println("==== Ignore field: " + wellName);
+                } else {
+                    // we find the mapping metadata.
+                    solrDoc.addField(fieldName, meta.get(names[i]));
+                }
             }
         }
 
