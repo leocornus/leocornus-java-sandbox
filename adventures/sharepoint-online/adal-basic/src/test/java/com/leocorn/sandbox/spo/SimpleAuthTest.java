@@ -254,11 +254,15 @@ public class SimpleAuthTest extends TestCase {
                     }
                 }
             } else {
-                // using Tika and SolrJ
-                // parse file and convert file content.
-                Metadata meta = parseFile(accessToken, fileUrl);
-                // call SolrJ
-                indexFileSolrJ(meta, props);
+                try {
+                    // using Tika and SolrJ
+                    // parse file and convert file content.
+                    Metadata meta = parseFile(accessToken, fileUrl);
+                    // call SolrJ
+                    indexFileSolrJ(meta, props);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
