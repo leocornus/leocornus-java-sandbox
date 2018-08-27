@@ -354,6 +354,9 @@ public class SimpleAuthTest extends TestCase {
         props.put("folder_customer_group", folders[0]);
         props.put("folder_customer", folders[1]);
         props.put("file_name", fileName);
+        // the file extension.
+        props.put("file_extension",
+                  fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase());
         props.put("file_path", folder + "/" + fileName);
         String spoId = "00000000";
         String docId = fileName;
