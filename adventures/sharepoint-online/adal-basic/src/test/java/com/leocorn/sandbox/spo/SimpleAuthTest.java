@@ -389,6 +389,9 @@ public class SimpleAuthTest extends TestCase {
             props.put("id", "o|" + projectId + "|" + docId);
         }
 
+        // set up solr schema version.
+        props.put("version_schema", conf.getProperty("solr.version.schema"));
+
         System.out.println(props);
         return props;
     }
