@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Comparator;
 
 import java.time.LocalDateTime;
@@ -48,6 +49,10 @@ import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.request.ContentStreamUpdateRequest;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.util.ContentStreamBase;
+import org.apache.solr.common.params.MapSolrParams;
+import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentList;
+import org.apache.solr.client.solrj.response.QueryResponse;
 
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
@@ -109,7 +114,7 @@ public class SimpleAuthTest extends TestCase {
     /**
      * quick test for iteration.
      */
-    public void testIteration() throws Exception {
+    public void notestIteration() throws Exception {
 
         //String token = getAuthResult().getAccessToken();
         // starts from group folder.
@@ -232,6 +237,9 @@ public class SimpleAuthTest extends TestCase {
                 folderUrl + "/Files('" + encodedFileName + "')/Properties";
             Map props = getProperties(accessToken, propertyUrl);
             System.out.println(props);
+
+            // TODO: check the schema version to decide to reload or not.
+
 
             // get ready the URL for download binary.
             String fileUrl = 
@@ -968,6 +976,42 @@ public class SimpleAuthTest extends TestCase {
 
         solr.add(solrDoc);
         solr.commit();
+    }
+
+    public void testGetSchemaVersion() {
+
+        String docId = "t|70021025|RNHJ2ET3WKEP-853174893-77061";
+        String version = getSchemaVersion(docId);
+        assertEquals(version, "1.0");
+    }
+
+    /**
+     * query existing solr doc using SolrJ
+     */
+    private String getSchemaVersion(String docId) {
+
+        final Map<String, String> queryParamMap = new HashMap<String, String>();
+        queryParamMap.put("q", "id:" + docId);
+        queryParamMap.put("fl", "id,version_schema");
+        MapSolrParams queryParams = new MapSolrParams(queryParamMap);
+
+        try {
+        final QueryResponse response = solr.query(queryParams);
+        final SolrDocumentList documents = response.getResults();
+
+        if(documents.getNumFound() <= 0) {
+            return null;
+        } else {
+            // get the first document.
+            SolrDocument document = (SolrDocument)documents.get(0);
+            ArrayList values = (ArrayList)document.getFieldValue("version_schema");
+            return values.get(0).toString();
+        }
+        } catch(Exception sse) {
+
+            sse.printStackTrace();
+            return null;
+        }
     }
 
     /**
