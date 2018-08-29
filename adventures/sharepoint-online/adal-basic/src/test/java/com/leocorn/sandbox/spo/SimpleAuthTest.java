@@ -1037,8 +1037,12 @@ public class SimpleAuthTest extends TestCase {
             } else {
                 // get the first document.
                 SolrDocument document = (SolrDocument)documents.get(0);
-                ArrayList values = (ArrayList)document.getFieldValue("version_schema");
-                return (Double) values.get(0);
+                if(document.containsKey("version_schema")) {
+                    ArrayList values = (ArrayList)document.getFieldValue("version_schema");
+                    return (Double) values.get(0);
+                } else {
+                    return new Double(0.0);
+                }
             }
         } catch(Exception sse) {
 
