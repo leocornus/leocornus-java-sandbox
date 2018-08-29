@@ -85,6 +85,10 @@ public class SimpleAuthTest extends TestCase {
      * folder count.
      */
     private int folderCount = 0;
+    // some statistic infomation
+    private int fileCount = 0;
+    private int skipFileCount = 0;
+    private int errorFileCount = 0;
 
     public SimpleAuthTest(String testName) {
 
@@ -124,7 +128,10 @@ public class SimpleAuthTest extends TestCase {
             processFolder(folders[i]);
         }
 
-        System.out.println("Total Folders" + folderCount);
+        System.out.println("Total Folders: " + folderCount);
+        System.out.println("Total Files: " + fileCount);
+        System.out.println("Total Files Skipped: " + skipFileCount);
+        System.out.println("Total Files Error: " + errorFileCount);
     }
 
     private String accessToken = "";
@@ -137,6 +144,7 @@ public class SimpleAuthTest extends TestCase {
         throws Exception {
 
         folderCount ++;
+        System.out.println("Processing Folder: " + folderCount);
 
         // get accessToken 
         if(accessToken.isEmpty()) {
@@ -174,7 +182,7 @@ public class SimpleAuthTest extends TestCase {
         // if has Folders, process each folder by call it self.
         JSONArray jsonArray = json.getJSONArray("value");
         // logging...
-        System.out.println("== Processing " + jsonArray.length() + " Folders");
+        //System.out.println("== Processing " + jsonArray.length() + " Folders");
         for (int index = 0; index < jsonArray.length(); index++) {
             // get the folder name.
             JSONObject oneFolder = jsonArray.getJSONObject(index);
@@ -197,7 +205,7 @@ public class SimpleAuthTest extends TestCase {
            folderUrl.indexOf("Report") < 0 &&
            folderUrl.indexOf("Test") < 0) {
 
-            System.out.println("None Ceritificate and Report Folder, Skip...");
+            System.out.println("==== None Ceritificate and Report Folder, Skip...");
             return;
         }
 
@@ -212,7 +220,7 @@ public class SimpleAuthTest extends TestCase {
         // If has Files, download all files 
         JSONArray filesArray = json.getJSONArray("value");
         // logging...
-        System.out.println("==== Downloading " + filesArray.length() + " Files");
+        //System.out.println("==== Downloading " + filesArray.length() + " Files");
         for (int index = 0; index < filesArray.length(); index++) {
 
             // one file 
@@ -221,28 +229,33 @@ public class SimpleAuthTest extends TestCase {
             if(oneFile.has("Title") && !oneFile.isNull("Title")) {
                 fileName = oneFile.getString("Title");
             } else {
-                System.out.println("Could not find file name, skip ...");
+                System.out.println("====== Could not find file name, skip ...");
                 continue;
             }
             if(fileName == "") {
-                System.out.println("File name is empty, skip ...");
+                System.out.println("====== File name is empty, skip ...");
+                continue;
             }
             // odata.id will have the full URL.
             //String fileUrl = oneItem.getString("odata.id");
             String encodedFileName = 
                 URLEncoder.encode(fileName, "utf-8").replace("+", "%20");
+            fileCount ++;
+            System.out.println("Processing File: " + fileCount);
 
             // we need get the metadata for the file.
             String propertyUrl = 
                 folderUrl + "/Files('" + encodedFileName + "')/Properties";
             Map props = getProperties(accessToken, propertyUrl);
-            System.out.println(props);
+            System.out.println("==== File Path: " + propertyUrl);
+            //System.out.println(props);
 
             // TODO: check the schema version to decide to reload or not.
             Double version = getSchemaVersion((String)props.get("id"));
             if(version.compareTo(new Double(conf.getProperty("solr.version.schema"))) >= 0) {
                 // skip, this one,
-                System.out.println("------------ Skip --------------");
+                skipFileCount ++;
+                System.out.println("------------ Skip File: " + skipFileCount); 
                 continue;
             }
 
@@ -274,6 +287,8 @@ public class SimpleAuthTest extends TestCase {
                     // call SolrJ
                     indexFileSolrJ(meta, props);
                 } catch (Exception e) {
+                    errorFileCount ++;
+                    System.out.println("-------------- Error File: " + errorFileCount);
                     e.printStackTrace();
                 }
             }
@@ -309,7 +324,7 @@ public class SimpleAuthTest extends TestCase {
     private Map getProperties(String token, String propertyUrl) 
         throws Exception {
 
-        System.out.println(propertyUrl);
+        //System.out.println(propertyUrl);
 
         String res = getResponse(token, propertyUrl);
         Map props = new HashMap();
@@ -405,7 +420,7 @@ public class SimpleAuthTest extends TestCase {
         // set up solr schema version.
         props.put("version_schema", conf.getProperty("solr.version.schema"));
 
-        System.out.println(props);
+        //System.out.println(props);
         return props;
     }
 
@@ -666,17 +681,17 @@ public class SimpleAuthTest extends TestCase {
                 baos.write(buffer, 0, chunk);
             }
             baos.flush();
-            System.out.println("file_size = " + size);
-            System.out.println("Array Size = " + baos.toByteArray().length);
+            //System.out.println("file_size = " + size);
+            //System.out.println("Array Size = " + baos.toByteArray().length);
 
-            System.out.println("Content-Type = " + contentType);
-            System.out.println("Content-Disposition = " + disposition);
-            System.out.println("fileName = " + fileName);
+            //System.out.println("Content-Type = " + contentType);
+            //System.out.println("Content-Disposition = " + disposition);
+            //System.out.println("fileName = " + fileName);
 
             // ======================== MD5 Hash =============================
             // generate the MD5 hash for the file content.
             String digest = DigestUtils.md5Hex(new ByteArrayInputStream(baos.toByteArray()));
-            System.out.println("Digest = " + digest);
+            //System.out.println("Digest = " + digest);
 
             // get the input stream from SPO connection.
             AutoDetectParser parser = new AutoDetectParser();
@@ -690,39 +705,39 @@ public class SimpleAuthTest extends TestCase {
             metadata.add("file_hash", digest);
 
             // check the metadata.
-            System.out.println("============== File Metadata =================");
-            String[] names = metadata.names();
+            //System.out.println("============== File Metadata =================");
+            //String[] names = metadata.names();
             // sort the names.
             // add the comparator to compare by the lower case.
-            Arrays.sort(names, new Comparator<String>() {
-                public int compare(String s1, String s2) {
-                    return s1.toLowerCase().compareTo(s2.toLowerCase());
-                }
-            });
-            for(int i = 0; i < names.length; i ++) {
-                // get ready to well formed name.
-                String wellName = names[i].toLowerCase().trim().
-                    replaceAll(" ", "_").
-                    replaceAll("-", "_").
-                    replaceAll(":", "_");
-                System.out.print(wellName + " = ");
-                System.out.println(metadata.get(names[i]));;
-            }
+            //Arrays.sort(names, new Comparator<String>() {
+            //    public int compare(String s1, String s2) {
+            //        return s1.toLowerCase().compareTo(s2.toLowerCase());
+            //    }
+            //});
+            //for(int i = 0; i < names.length; i ++) {
+            //    // get ready to well formed name.
+            //    String wellName = names[i].toLowerCase().trim().
+            //        replaceAll(" ", "_").
+            //        replaceAll("-", "_").
+            //        replaceAll(":", "_");
+            //    System.out.print(wellName + " = ");
+            //    System.out.println(metadata.get(names[i]));;
+            //}
 
             // the content in text format 
-            System.out.println("=============== File Content =================");
+            //System.out.println("=============== File Content =================");
             //System.out.println(handler.toString());
             metadata.add("file_content", handler.toString());
             metadata.add("file_content_size", 
                          String.valueOf(handler.toString().length()));
             metadata.add("file_content_hash",
                          DigestUtils.md5Hex(handler.toString()));
-            System.out.println(handler.toString().length());
+            //System.out.println(handler.toString().length());
 
             // close the input stream.
             inputStream.close();
  
-            System.out.println("File Parsed!");
+            //System.out.println("File Parsed!");
 
         } else {
             System.out.println(String.format("Connection returned HTTP code: %s with message: %s",
