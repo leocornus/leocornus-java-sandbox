@@ -114,7 +114,7 @@ public class SimpleAuthTest extends TestCase {
     /**
      * quick test for iteration.
      */
-    public void notestIteration() throws Exception {
+    public void testIteration() throws Exception {
 
         //String token = getAuthResult().getAccessToken();
         // starts from group folder.
@@ -239,7 +239,12 @@ public class SimpleAuthTest extends TestCase {
             System.out.println(props);
 
             // TODO: check the schema version to decide to reload or not.
-
+            Double version = getSchemaVersion((String)props.get("id"));
+            if(version.compareTo(new Double(conf.getProperty("solr.version.schema"))) >= 0) {
+                // skip, this one,
+                System.out.println("------------ Skip --------------");
+                continue;
+            }
 
             // get ready the URL for download binary.
             String fileUrl = 
@@ -978,7 +983,7 @@ public class SimpleAuthTest extends TestCase {
         solr.commit();
     }
 
-    public void testGetSchemaVersion() {
+    public void notestGetSchemaVersion() {
 
         String docId = "t|70021025|RNHJ2ET3WKEP-853174893-77061";
         Double version = getSchemaVersion(docId);
