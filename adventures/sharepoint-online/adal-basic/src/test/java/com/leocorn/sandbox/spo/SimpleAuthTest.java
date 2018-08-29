@@ -983,6 +983,10 @@ public class SimpleAuthTest extends TestCase {
         String docId = "t|70021025|RNHJ2ET3WKEP-853174893-77061";
         Double version = getSchemaVersion(docId);
         assertEquals(version, new Double(1.0));
+
+        assertTrue(version.compareTo(new Double(0.0)) > 0);
+        assertTrue(version.compareTo(new Double(1.0)) == 0);
+        assertTrue(version.compareTo(new Double(1.1)) < 0);
     }
 
     /**
