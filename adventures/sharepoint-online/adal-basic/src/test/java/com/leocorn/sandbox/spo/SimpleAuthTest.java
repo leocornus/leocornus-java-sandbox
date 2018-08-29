@@ -85,6 +85,7 @@ public class SimpleAuthTest extends TestCase {
      * folder count.
      */
     private int folderCount = 0;
+    private int skipFolderCount = 0;
     // some statistic infomation
     private int fileCount = 0;
     private int skipFileCount = 0;
@@ -205,7 +206,10 @@ public class SimpleAuthTest extends TestCase {
            folderUrl.indexOf("Report") < 0 &&
            folderUrl.indexOf("Test") < 0) {
 
+            skipFolderCount ++;
+
             System.out.println("==== None Ceritificate and Report Folder, Skip...");
+            System.out.println("--------------- Skip Folder: " + skipFolderCount);
             return;
         }
 
@@ -250,7 +254,7 @@ public class SimpleAuthTest extends TestCase {
             System.out.println("==== File Path: " + propertyUrl);
             //System.out.println(props);
 
-            // TODO: check the schema version to decide to reload or not.
+            // check the schema version to decide to reload or not.
             Double version = getSchemaVersion((String)props.get("id"));
             if(version.compareTo(new Double(conf.getProperty("solr.version.schema"))) >= 0) {
                 // skip, this one,
