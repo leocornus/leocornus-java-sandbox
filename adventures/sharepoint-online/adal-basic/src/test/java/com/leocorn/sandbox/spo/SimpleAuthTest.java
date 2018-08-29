@@ -981,14 +981,14 @@ public class SimpleAuthTest extends TestCase {
     public void testGetSchemaVersion() {
 
         String docId = "t|70021025|RNHJ2ET3WKEP-853174893-77061";
-        String version = getSchemaVersion(docId);
-        assertEquals(version, "1.0");
+        Double version = getSchemaVersion(docId);
+        assertEquals(version, new Double(1.0));
     }
 
     /**
      * query existing solr doc using SolrJ
      */
-    private String getSchemaVersion(String docId) {
+    private Double getSchemaVersion(String docId) {
 
         final Map<String, String> queryParamMap = new HashMap<String, String>();
         queryParamMap.put("q", "id:" + docId);
@@ -996,21 +996,21 @@ public class SimpleAuthTest extends TestCase {
         MapSolrParams queryParams = new MapSolrParams(queryParamMap);
 
         try {
-        final QueryResponse response = solr.query(queryParams);
-        final SolrDocumentList documents = response.getResults();
+            final QueryResponse response = solr.query(queryParams);
+            final SolrDocumentList documents = response.getResults();
 
-        if(documents.getNumFound() <= 0) {
-            return null;
-        } else {
-            // get the first document.
-            SolrDocument document = (SolrDocument)documents.get(0);
-            ArrayList values = (ArrayList)document.getFieldValue("version_schema");
-            return values.get(0).toString();
-        }
+            if(documents.getNumFound() <= 0) {
+                return 0.0;
+            } else {
+                // get the first document.
+                SolrDocument document = (SolrDocument)documents.get(0);
+                ArrayList values = (ArrayList)document.getFieldValue("version_schema");
+                return (Double) values.get(0);
+            }
         } catch(Exception sse) {
 
             sse.printStackTrace();
-            return null;
+            return 0.0;
         }
     }
 
