@@ -987,6 +987,11 @@ public class SimpleAuthTest extends TestCase {
         assertTrue(version.compareTo(new Double(0.0)) > 0);
         assertTrue(version.compareTo(new Double(1.0)) == 0);
         assertTrue(version.compareTo(new Double(1.1)) < 0);
+
+        // test a none existing doc
+        docId = "t|70021025a|RNHJ2ET3WKEP-853174893-77061";
+        version = getSchemaVersion(docId);
+        assertEquals(version, new Double(0.0));
     }
 
     /**
@@ -1004,7 +1009,7 @@ public class SimpleAuthTest extends TestCase {
             final SolrDocumentList documents = response.getResults();
 
             if(documents.getNumFound() <= 0) {
-                return 0.0;
+                return new Double(0.0);
             } else {
                 // get the first document.
                 SolrDocument document = (SolrDocument)documents.get(0);
@@ -1014,7 +1019,7 @@ public class SimpleAuthTest extends TestCase {
         } catch(Exception sse) {
 
             sse.printStackTrace();
-            return 0.0;
+            return new Double(0.0);
         }
     }
 
