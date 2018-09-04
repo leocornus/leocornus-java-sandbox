@@ -1006,7 +1006,7 @@ public class SimpleAuthTest extends TestCase {
 
         String docId = "t|70021025|RNHJ2ET3WKEP-853174893-77061";
         Double version = getSchemaVersion(docId);
-        assertEquals(version, new Double(1.0));
+        assertEquals(version, new Double(0.1));
 
         assertTrue(version.compareTo(new Double(0.0)) > 0);
         assertTrue(version.compareTo(new Double(1.0)) == 0);
@@ -1038,8 +1038,8 @@ public class SimpleAuthTest extends TestCase {
                 // get the first document.
                 SolrDocument document = (SolrDocument)documents.get(0);
                 if(document.containsKey("version_schema")) {
-                    ArrayList values = (ArrayList)document.getFieldValue("version_schema");
-                    return (Double) values.get(0);
+                    // the version_schema should have type pdouble!
+                    return (Double)document.getFieldValue("version_schema");
                 } else {
                     return new Double(0.0);
                 }
