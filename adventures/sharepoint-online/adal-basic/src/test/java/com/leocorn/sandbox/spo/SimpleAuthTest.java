@@ -1059,7 +1059,18 @@ public class SimpleAuthTest extends TestCase {
     public void testGetEvents() {
 
          SolrDocumentList docs = getEvents();
+         // Check the total documents found!
          assertTrue(docs.getNumFound() > 0);
+         System.out.println("Found " + docs.getNumFound() + " Events");
+         // quick test get the Item URL for each event.
+         //for(int i = 0; i < docs.getNumFound(); i++) {
+         int i = 0;
+         for(SolrDocument doc : docs) {
+
+             String itemUrl = (String)((ArrayList)doc.getFieldValue("eventData.ItemUrl")).get(0);
+             System.out.println("Item Url " + i + ": " + itemUrl);
+             i++;
+         }
     }
 
     /**
@@ -1086,6 +1097,10 @@ public class SimpleAuthTest extends TestCase {
             return null;
         }
     }
+
+    /**
+     * 
+     */
 
     /**
      * a utility method to load configuration files.
