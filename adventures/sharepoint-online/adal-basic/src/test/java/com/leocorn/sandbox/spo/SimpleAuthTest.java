@@ -80,6 +80,7 @@ public class SimpleAuthTest extends TestCase {
      * Solr client object to talk to Solr.
      */
     private SolrClient solr;
+    private SolrClient solrEvent;
 
     /**
      * folder count.
@@ -106,6 +107,10 @@ public class SimpleAuthTest extends TestCase {
             // get ready the Solr client.
             String urlString = conf.getProperty("solr.baseurl");
             solr = new HttpSolrClient.Builder(urlString).build();
+
+            // the Solr client for Event Queue
+            urlString = conf.getProperty("solr.eventBaseurl");
+            solrEvent = new HttpSolrClient.Builder(urlString).build();
         } catch(IOException e) {
             e.printStackTrace();
         }
@@ -119,7 +124,7 @@ public class SimpleAuthTest extends TestCase {
     /**
      * quick test for iteration.
      */
-    public void testIteration() throws Exception {
+    public void notestIteration() throws Exception {
 
         //String token = getAuthResult().getAccessToken();
         // starts from group folder.
@@ -1048,6 +1053,37 @@ public class SimpleAuthTest extends TestCase {
 
             sse.printStackTrace();
             return new Double(0.0);
+        }
+    }
+
+    public void testGetEvents() {
+
+         SolrDocumentList docs = getEvents();
+         assertTrue(docs.getNumFound() > 0);
+    }
+
+    /**
+     * get the evets from Solr queue.
+     */
+    private SolrDocumentList getEvents() {
+
+        final Map<String, String> queryParamMap = new HashMap<String, String>();
+        queryParamMap.put("q", 
+            "-process_status:[* TO *] AND eventData.ItemUrl:[* TO *]");
+        // we will return all fields.
+        //queryParamMap.put("fl", "id,version_schema");
+        queryParamMap.put("sort", "eventSummary.messageTime asc");
+        queryParamMap.put("rows", "5");
+        MapSolrParams queryParams = new MapSolrParams(queryParamMap);
+
+        try {
+            final QueryResponse response = solrEvent.query(queryParams);
+            final SolrDocumentList documents = response.getResults();
+
+            return documents;
+        } catch(Exception sse) {
+            sse.printStackTrace();
+            return null;
         }
     }
 
