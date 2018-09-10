@@ -1067,12 +1067,35 @@ public class SimpleAuthTest extends TestCase {
          int i = 0;
          for(SolrDocument doc : docs) {
 
+             //===========================================
              // quick test to check one field's value.
              String itemUrl = 
                  (String)((ArrayList)doc.getFieldValue("eventData.ItemUrl")).get(0);
              System.out.println("Item Url " + i + ": " + itemUrl);
-             i++;
 
+             //===========================================
+             // quick test to check the type of the item.
+             // and get the filename.
+             if(itemUrl.lastIndexOf(".") < 0) {
+                 // not a file, skip
+                 System.out.println("skipping this item");
+             } else {
+                 // get extension.
+                 String extension = itemUrl.substring(itemUrl.lastIndexOf("."));
+                 System.out.println("Extension: " + extension);
+                 if(extension.length() > 10) {
+                     // not a file extension, skip.
+                     System.out.println("Skipping no extension!....");
+                 } else {
+                 // if extension bigger than 5 in size,
+                 // skip it too!
+                 // get the file name.
+                 String fileName = itemUrl.substring(itemUrl.lastIndexOf("/") + 1);
+                 System.out.println("File Name: " + fileName);
+                 }
+             }
+
+             //===========================================
              // TODO: try the get field value map. NOT WORKING!
              //Map fieldValue = doc.getFieldValueMap();
              //System.out.println(fieldValue);
@@ -1088,10 +1111,13 @@ public class SimpleAuthTest extends TestCase {
              //    System.out.println(field.getValue());
              //}
 
-             for(String fieldName: doc.getFieldNames()) {
-                 System.out.print(fieldName + ": ");
-                 System.out.println(doc.getFieldValue(fieldName));
-             }
+             // using the getFieldNames, it is working fine.
+             //for(String fieldName: doc.getFieldNames()) {
+             //    System.out.print(fieldName + ": ");
+             //    System.out.println(doc.getFieldValue(fieldName));
+             //}
+
+             i++;
          }
     }
 
@@ -1106,7 +1132,7 @@ public class SimpleAuthTest extends TestCase {
         // we will return all fields.
         //queryParamMap.put("fl", "id,version_schema");
         queryParamMap.put("sort", "eventSummary.messageTime asc");
-        queryParamMap.put("rows", "5");
+        queryParamMap.put("rows", "100");
         MapSolrParams queryParams = new MapSolrParams(queryParamMap);
 
         try {
