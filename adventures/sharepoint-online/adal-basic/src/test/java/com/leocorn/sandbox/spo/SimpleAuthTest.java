@@ -1067,9 +1067,31 @@ public class SimpleAuthTest extends TestCase {
          int i = 0;
          for(SolrDocument doc : docs) {
 
-             String itemUrl = (String)((ArrayList)doc.getFieldValue("eventData.ItemUrl")).get(0);
+             // quick test to check one field's value.
+             String itemUrl = 
+                 (String)((ArrayList)doc.getFieldValue("eventData.ItemUrl")).get(0);
              System.out.println("Item Url " + i + ": " + itemUrl);
              i++;
+
+             // TODO: try the get field value map. NOT WORKING!
+             //Map fieldValue = doc.getFieldValueMap();
+             //System.out.println(fieldValue);
+             ////Set<Map.Entry<String,Object>> st = fieldValue.entrySet();
+             //// Then, we could create a InputSolrDocument using this map.
+             ////for(<String, Object> field: fieldValue) {
+             ////for(Map.Entry<String, Object> field: doc.iterator()) {
+             ////// try to use the lambda expression
+             //////fieldValue.forEach((key, value)-> {
+             //Iterator<Map.Entry<String, Object>> it = doc.iterator();
+             //for(Map.Entry<String, Object> field: it) {
+             //    System.out.print(field.getKey() + ": ");
+             //    System.out.println(field.getValue());
+             //}
+
+             for(String fieldName: doc.getFieldNames()) {
+                 System.out.print(fieldName + ": ");
+                 System.out.println(doc.getFieldValue(fieldName));
+             }
          }
     }
 
