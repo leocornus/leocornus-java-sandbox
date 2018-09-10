@@ -1090,9 +1090,9 @@ public class SimpleAuthTest extends TestCase {
                      // if extension bigger than 5 in size,
                      // skip it too!
                      // get the file name.
-                     String folder = itemUrl.substring(0, itemUrl.lastIndexOf("/") - 1);
+                     String folder = itemUrl.substring(0, itemUrl.lastIndexOf("/"));
                      String fileName = itemUrl.substring(itemUrl.lastIndexOf("/") + 1);
-                     System.out.println("Folder: " + fileName);
+                     System.out.println("Folder: " + folder);
                      System.out.println("File Name: " + fileName);
                  }
              }
