@@ -1134,7 +1134,7 @@ public class SimpleAuthTest extends TestCase {
         // we will return all fields.
         //queryParamMap.put("fl", "id,version_schema");
         queryParamMap.put("sort", "eventSummary.messageTime asc");
-        queryParamMap.put("rows", "100");
+        queryParamMap.put("rows", conf.getProperty("solr.event.processBatch"));
         MapSolrParams queryParams = new MapSolrParams(queryParamMap);
 
         try {
