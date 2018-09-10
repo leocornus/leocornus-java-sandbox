@@ -938,11 +938,12 @@ public class SimpleAuthTest extends TestCase {
         String folder = "Customer Group F/Fluke Corporation - 0004518553/0002579396/Test Results and Data";
         String file = "2460695 UL 2054 test data 2010-11-22.doc";
 
-        String apiUri = "/_api/web/GetFolderByServerRelativeUrl('" + 
-                    URLEncoder.encode(folder, "utf-8").replace("+", "%20") +
-                    "')/Files('" + 
-                    URLEncoder.encode(file, "utf-8").replace("+", "%20") +
-                    "')/";
+        String apiUri = buildApiUri(folder, file);
+        //String apiUri = "/_api/web/GetFolderByServerRelativeUrl('" + 
+        //            URLEncoder.encode(folder, "utf-8").replace("+", "%20") +
+        //            "')/Files('" + 
+        //            URLEncoder.encode(file, "utf-8").replace("+", "%20") +
+        //            "')/";
 
         String fileUrl = conf.getProperty("target.source") +
                         conf.getProperty("sharepoint.site") + apiUri + 
@@ -957,6 +958,15 @@ public class SimpleAuthTest extends TestCase {
         Map props = getProperties(token, propUrl);
 
         indexFileSolrJ(meta, props);
+    }
+
+    public String buildApiUri(String folder, String fileName) throws Exception {
+
+        return "/_api/web/GetFolderByServerRelativeUrl('" + 
+               URLEncoder.encode(folder, "utf-8").replace("+", "%20") +
+               "')/Files('" + 
+               URLEncoder.encode(fileName, "utf-8").replace("+", "%20") +
+               "')/";
     }
 
     /**
@@ -1056,7 +1066,7 @@ public class SimpleAuthTest extends TestCase {
         }
     }
 
-    public void testGetEvents() {
+    public void notestGetEvents() {
 
          SolrDocumentList docs = getEvents();
          // Check the total documents found!
@@ -1148,9 +1158,96 @@ public class SimpleAuthTest extends TestCase {
         }
     }
 
+    public void testProcessEventQueue() throws Exception {
+
+        processEventQueue();
+    }
+
     /**
-     * 
+     * Preocessing the event queue!
      */
+    private void processEventQueue() throws Exception { 
+
+        SolrDocumentList docs = getEvents();
+        if(docs == null || docs.getNumFound() <= 0) {
+            System.out.println("No Events ...");
+            return;
+        }
+
+        String token = getAuthResult().getAccessToken();
+
+        // keep going...
+        System.out.println("Found " + docs.getNumFound() + " Events ...");
+
+        // go through each docs.
+        for(SolrDocument doc : docs) {
+
+            // set the process status.
+            String processStatus = "processing";
+
+            // get the file name, folder
+            String itemUrl = 
+                 (String)((ArrayList)doc.getFieldValue("eventData.ItemUrl")).get(0);
+
+            if(itemUrl.lastIndexOf(".") < 0) {
+                // not a file, skip
+                System.out.println("skipping this item");
+                processStatus = "skip";
+            } else {
+                // get extension.
+                String extension = itemUrl.substring(itemUrl.lastIndexOf("."));
+                System.out.println("Extension: " + extension);
+                if(extension.length() > 10) {
+                    // not a file extension, skip.
+                    System.out.println("Skipping no extension!....");
+                    processStatus = "skip";
+                } else {
+                    // if extension bigger than 5 in size,
+                    // skip it too!
+                    // get the file name.
+                    String folder = itemUrl.substring(0, itemUrl.lastIndexOf("/"));
+                    String fileName = itemUrl.substring(itemUrl.lastIndexOf("/") + 1);
+                    System.out.println("Folder: " + folder);
+                    System.out.println("File Name: " + fileName);
+
+                    // process the file.
+                    String apiUri = buildApiUri(folder, fileName);
+                    String fileUrl = conf.getProperty("target.source") +
+                                    conf.getProperty("sharepoint.site") + apiUri + 
+                                    "$value";
+                    System.out.println(fileUrl);
+                    // get tika metadata.
+                    Metadata meta = parseFile(token, fileUrl);
+
+                    String propUrl = conf.getProperty("target.source") +
+                                    conf.getProperty("sharepoint.site") + apiUri + 
+                                    "Properties";
+                    Map props = getProperties(token, propUrl);
+
+                    indexFileSolrJ(meta, props);
+
+                    processStatus = "success";
+                }
+            }
+
+            // update process status.
+            SolrInputDocument solrDoc = new SolrInputDocument();
+            for(String fieldName : doc.getFieldNames()) {
+                if(fieldName.equals("_version_")) {
+                    // skip...
+                } else {
+                    // copy field value.
+                    solrDoc.addField(fieldName, doc.getFieldValue(fieldName));
+                }
+            }
+            // add the process status.
+            solrDoc.addField("process_status", processStatus);
+
+            // commit the doc.
+            solrEvent.add(solrDoc);
+            solrEvent.commit();
+        }
+    }
 
     /**
      * a utility method to load configuration files.
