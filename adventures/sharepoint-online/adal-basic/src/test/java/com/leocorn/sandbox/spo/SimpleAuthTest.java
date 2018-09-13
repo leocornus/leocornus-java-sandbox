@@ -1224,9 +1224,15 @@ public class SimpleAuthTest extends TestCase {
                                     "Properties";
                     Map props = getProperties(token, propUrl);
 
-                    indexFileSolrJ(meta, props);
+                    try {
 
-                    processStatus = "success";
+                        indexFileSolrJ(meta, props);
+                        processStatus = "success";
+                    } catch (Exception e) {
+
+                        e.printStackTrace();
+                        processStatus = "error";
+                    }
                 }
             }
 
