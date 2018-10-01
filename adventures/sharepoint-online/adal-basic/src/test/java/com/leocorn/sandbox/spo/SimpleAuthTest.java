@@ -1080,7 +1080,7 @@ public class SimpleAuthTest extends TestCase {
              //===========================================
              // quick test to check one field's value.
              String itemUrl = 
-                 (String)((ArrayList)doc.getFieldValue("eventData.ItemUrl")).get(0);
+                 (String)doc.getFieldValue("eventData.ItemUrl");
              System.out.println("Item Url " + i + ": " + itemUrl);
 
              //===========================================
@@ -1187,7 +1187,7 @@ public class SimpleAuthTest extends TestCase {
 
             // get the file name, folder
             String itemUrl = 
-                 (String)((ArrayList)doc.getFieldValue("eventData.ItemUrl")).get(0);
+                 (String)doc.getFieldValue("eventData.ItemUrl");
 
             if(itemUrl.lastIndexOf(".") < 0) {
                 // not a file, skip
@@ -1202,29 +1202,28 @@ public class SimpleAuthTest extends TestCase {
                     System.out.println("Skipping no extension!....");
                     processStatus = "skip";
                 } else {
-                    // if extension bigger than 5 in size,
-                    // skip it too!
-                    // get the file name.
-                    String folder = itemUrl.substring(0, itemUrl.lastIndexOf("/"));
-                    String fileName = itemUrl.substring(itemUrl.lastIndexOf("/") + 1);
-                    System.out.println("Folder: " + folder);
-                    System.out.println("File Name: " + fileName);
-
-                    // process the file.
-                    String apiUri = buildApiUri(folder, fileName);
-                    String fileUrl = conf.getProperty("target.source") +
-                                    conf.getProperty("sharepoint.site") + apiUri + 
-                                    "$value";
-                    System.out.println(fileUrl);
-                    // get tika metadata.
-                    Metadata meta = parseFile(token, fileUrl);
-
-                    String propUrl = conf.getProperty("target.source") +
-                                    conf.getProperty("sharepoint.site") + apiUri + 
-                                    "Properties";
-                    Map props = getProperties(token, propUrl);
-
                     try {
+                        // if extension bigger than 5 in size,
+                        // skip it too!
+                        // get the file name.
+                        String folder = itemUrl.substring(0, itemUrl.lastIndexOf("/"));
+                        String fileName = itemUrl.substring(itemUrl.lastIndexOf("/") + 1);
+                        System.out.println("Folder: " + folder);
+                        System.out.println("File Name: " + fileName);
+
+                        // process the file.
+                        String apiUri = buildApiUri(folder, fileName);
+                        String fileUrl = conf.getProperty("target.source") +
+                                        conf.getProperty("sharepoint.site") + apiUri + 
+                                        "$value";
+                        System.out.println(fileUrl);
+                        // get tika metadata.
+                        Metadata meta = parseFile(token, fileUrl);
+
+                        String propUrl = conf.getProperty("target.source") +
+                                        conf.getProperty("sharepoint.site") + apiUri + 
+                                        "Properties";
+                        Map props = getProperties(token, propUrl);
 
                         indexFileSolrJ(meta, props);
                         processStatus = "success";
