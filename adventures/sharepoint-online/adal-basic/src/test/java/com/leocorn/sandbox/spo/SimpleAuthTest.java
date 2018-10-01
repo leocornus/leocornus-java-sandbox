@@ -25,6 +25,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Set;
+import java.util.List;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -1151,6 +1152,7 @@ public class SimpleAuthTest extends TestCase {
             final QueryResponse response = solrEvent.query(queryParams);
             final SolrDocumentList documents = response.getResults();
 
+            List<SolrInputDocument> solrDocs = new ArrayList<SolrInputDocument>();
             // go through each docs.
             for(SolrDocument doc : documents) {
                 // update process status to processing..
@@ -1166,10 +1168,12 @@ public class SimpleAuthTest extends TestCase {
                 // add the process status.
                 solrDoc.addField("process_status", "processing");
 
-                // commit the doc.
-                solrEvent.add(solrDoc);
-                solrEvent.commit();
+                solrDocs.add(solrDoc);
             }
+
+            // commit the doc.
+            solrEvent.add(solrDocs);
+            solrEvent.commit();
 
             return documents;
         } catch(Exception sse) {
@@ -1209,7 +1213,7 @@ public class SimpleAuthTest extends TestCase {
             String itemUrl = 
                  (String)doc.getFieldValue("eventData.ItemUrl");
 
-            if(itemUrl.lastIndexOf(".") < 0) {
+            if(itemUrl.lastIndexOf(".") < 0 || itemUrl.lastIndexOf("deleteMe") > 0) {
                 // not a file, skip
                 System.out.println("skipping this item");
                 processStatus = "skip";
