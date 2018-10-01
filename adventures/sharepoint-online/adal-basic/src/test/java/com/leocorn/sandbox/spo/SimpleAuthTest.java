@@ -1151,6 +1151,26 @@ public class SimpleAuthTest extends TestCase {
             final QueryResponse response = solrEvent.query(queryParams);
             final SolrDocumentList documents = response.getResults();
 
+            // go through each docs.
+            for(SolrDocument doc : documents) {
+                // update process status to processing..
+                SolrInputDocument solrDoc = new SolrInputDocument();
+                for(String fieldName : doc.getFieldNames()) {
+                    if(fieldName.equals("_version_")) {
+                        // skip...
+                    } else {
+                        // copy field value.
+                        solrDoc.addField(fieldName, doc.getFieldValue(fieldName));
+                    }
+                }
+                // add the process status.
+                solrDoc.addField("process_status", "processing");
+
+                // commit the doc.
+                solrEvent.add(solrDoc);
+                solrEvent.commit();
+            }
+
             return documents;
         } catch(Exception sse) {
             sse.printStackTrace();
