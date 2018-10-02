@@ -1142,6 +1142,7 @@ public class SimpleAuthTest extends TestCase {
         final Map<String, String> queryParamMap = new HashMap<String, String>();
         queryParamMap.put("q", 
             "-process_status:[* TO *] AND eventData.ItemUrl:[* TO *]");
+            //"process_status:processing");
         // we will return all fields.
         //queryParamMap.put("fl", "id,version_schema");
         queryParamMap.put("sort", "eventSummary.messageTime asc");
@@ -1204,7 +1205,11 @@ public class SimpleAuthTest extends TestCase {
         System.out.println("Found " + docs.getNumFound() + " Events ...");
 
         // go through each docs.
-        for(SolrDocument doc : docs) {
+        //for(SolrDocument doc : docs) {
+        ArrayList<String> processed = new ArrayList();
+        for(int j = docs.size() - 1; j >= 0; j--) {
+
+            SolrDocument doc = (SolrDocument) docs.get(j);
 
             // set the process status.
             String processStatus = "processing";
@@ -1212,12 +1217,16 @@ public class SimpleAuthTest extends TestCase {
             // get the file name, folder
             String itemUrl = 
                  (String)doc.getFieldValue("eventData.ItemUrl");
-
-            if(itemUrl.lastIndexOf(".") < 0 || itemUrl.lastIndexOf("deleteMe") > 0) {
+            if(processed.indexOf(itemUrl) > -1) {
+                // we already process this.
+                System.out.println("skipping processed item");
+                processStatus = "skip";
+            } else if(itemUrl.lastIndexOf(".") < 0 || itemUrl.lastIndexOf("deleteMe") > 0) {
                 // not a file, skip
                 System.out.println("skipping this item");
                 processStatus = "skip";
             } else {
+                processed.add(itemUrl);
                 // get extension.
                 String extension = itemUrl.substring(itemUrl.lastIndexOf("."));
                 System.out.println("Extension: " + extension);
@@ -1248,7 +1257,6 @@ public class SimpleAuthTest extends TestCase {
                                         conf.getProperty("sharepoint.site") + apiUri + 
                                         "Properties";
                         Map props = getProperties(token, propUrl);
-
                         indexFileSolrJ(meta, props);
                         processStatus = "success";
                     } catch (Exception e) {
@@ -1270,6 +1278,7 @@ public class SimpleAuthTest extends TestCase {
                 }
             }
             // add the process status.
+            solrDoc.removeField("process_status");
             solrDoc.addField("process_status", processStatus);
 
             // commit the doc.
