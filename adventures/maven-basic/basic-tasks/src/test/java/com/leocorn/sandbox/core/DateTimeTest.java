@@ -38,7 +38,9 @@ public class DateTimeTest
         LocalDateTime startTime = LocalDateTime.now();
 
         // try to run 1 minutes.
-        for(int index = 1; true; index++) {
+	// run forever.
+        //for(int index = 1; true; index++) {
+        for(int index = 1; index < 10; index++) {
             // 
             System.out.println("-->" + index);
             LocalDateTime stopTime = LocalDateTime.now().minusMinutes(1);
