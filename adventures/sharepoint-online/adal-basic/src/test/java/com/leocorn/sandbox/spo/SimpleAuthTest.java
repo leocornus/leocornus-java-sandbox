@@ -1167,6 +1167,7 @@ public class SimpleAuthTest extends TestCase {
                     }
                 }
                 // add the process status.
+                //solrDoc.removeField("process_status");
                 solrDoc.addField("process_status", "processing");
 
                 solrDocs.add(solrDoc);
