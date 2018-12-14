@@ -2,8 +2,12 @@ package com.leocorn.sandbox.stream;
 
 import java.io.InputStream;
 import java.io.IOException;
+import java.io.FileOutputStream;
 
 import java.util.Properties;
+
+import java.net.URL;
+import java.net.HttpURLConnection;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -41,6 +45,35 @@ public class InputStreamTest extends TestCase {
     public void testProperties() {
 
         assertEquals("localTwo", conf.getProperty("key.two"));
+    }
+
+    /**
+     * test input stream from http url.
+     */
+    public void testHttpInputStream() throws Exception {
+
+        String fileUrl = conf.getProperty("test.http.input.stream.fileurl");
+        URL url = new URL(fileUrl);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        int httpResponseCode = conn.getResponseCode();
+
+        if(httpResponseCode == 200) {
+
+            // opens input stream from the HTTP connection
+            InputStream inputStream = conn.getInputStream();
+
+            // opens an output stream to save into file
+            FileOutputStream outputStream = new FileOutputStream("/tmp/output.test.pdf");
+
+            int bytesRead = -1;
+            byte[] buffer = new byte[4096];
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
+            }
+
+            outputStream.close();
+            inputStream.close();
+        }
     }
 
     /**
