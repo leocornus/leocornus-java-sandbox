@@ -165,8 +165,9 @@ public class SolrQueryTest extends TestCase {
         }
     }
 
-    public void testIndexFileSolrJ() throws Exception {
+    public void notestIndexFileSolrJ() throws Exception {
 
+        // manually set the file for quick testing.
         Metadata metadata = parseFile(conf.getProperty("test.http.input.stream.fileurl"));
         metadata.add("id", "a1E1I000000jXbaUAE");
         metadata.add("sku", "iso_011625_104556");
@@ -271,16 +272,16 @@ public class SolrQueryTest extends TestCase {
                 baos.write(buffer, 0, chunk);
             }
             baos.flush();
-            System.out.println("file_size = " + size);
-            System.out.println("Array Size = " + baos.toByteArray().length);
+            //System.out.println("file_size = " + size);
+            //System.out.println("Array Size = " + baos.toByteArray().length);
 
-            System.out.println("Content-Type = " + contentType);
-            System.out.println("Content-Disposition = " + disposition);
+            //System.out.println("Content-Type = " + contentType);
+            //System.out.println("Content-Disposition = " + disposition);
 
             // ======================== MD5 Hash =============================
             // generate the MD5 hash for the file content.
             String digest = DigestUtils.md5Hex(new ByteArrayInputStream(baos.toByteArray()));
-            System.out.println("Digest = " + digest);
+            //System.out.println("Digest = " + digest);
 
             // get the input stream from SPO connection.
             AutoDetectParser parser = new AutoDetectParser();
