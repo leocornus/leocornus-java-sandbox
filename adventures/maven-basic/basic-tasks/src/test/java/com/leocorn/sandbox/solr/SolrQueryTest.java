@@ -25,6 +25,9 @@ import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.SolrQuery;
 
+import org.apache.solr.client.solrj.SolrServerException;
+
+import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.params.MapSolrParams;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
@@ -49,11 +52,13 @@ public class SolrQueryTest extends TestCase {
      * the configuration file.
      */
     private Properties conf = new Properties();
+    private Properties tikamap = new Properties();
 
     /**
      * Solr client object to talk to Solr.
      */
     private SolrClient solr;
+    private SolrClient targetSolr;
 
     public SolrQueryTest (String testName) {
 
@@ -63,10 +68,16 @@ public class SolrQueryTest extends TestCase {
             conf = ConfigLoader.loadConfig(getClass().getClassLoader(),
                                            "conf/basic.properties", 
                                            "conf/local.properties");
+            tikamap = ConfigLoader.loadConfig(getClass().getClassLoader(),
+                                 "conf/tikamap.properties",
+                                 "conf/local.tikamap.properties");
 
             // get ready the Solr client.
             String urlString = conf.getProperty("solr.baseurl");
             solr = new HttpSolrClient.Builder(urlString).build();
+
+            targetSolr =
+                new HttpSolrClient.Builder(conf.getProperty("solr.target.baseurl")).build();
 
         } catch(IOException e) {
             e.printStackTrace();
@@ -154,7 +165,54 @@ public class SolrQueryTest extends TestCase {
         }
     }
 
-    public void testParseFile() throws Exception {
+    public void testIndexFileSolrJ() throws Exception {
+
+        Metadata metadata = parseFile(conf.getProperty("test.http.input.stream.fileurl"));
+        metadata.add("id", "a1E1I000000jXbaUAE");
+        metadata.add("sku", "iso_011625_104556");
+        indexFileSolrJ(targetSolr, metadata);
+    }
+
+    /**
+     * index file using SolrJ.
+     */
+    private void indexFileSolrJ(SolrClient solrj, Metadata meta)
+      throws IOException, SolrServerException {
+
+        SolrInputDocument solrDoc = new SolrInputDocument();
+
+        // process tika metadata
+        String[] names = meta.names();
+        for(int i = 0; i < names.length; i++) {
+
+            String wellName = names[i].toLowerCase().trim().
+                replaceAll(" ", "_").
+                replaceAll("-", "_").
+                replaceAll(":", "_");
+            // check the tika metadata mapping configuration.
+            String fieldName = tikamap.getProperty(wellName);
+            // the == will jjjjjjjjj
+            if(fieldName == null) {
+                // no mapping! add the prefix.
+                solrDoc.addField("tika_" + wellName, meta.get(names[i]));
+            } else {
+                if(fieldName.equals("IGNORE")) {
+                    System.out.println("==== Ignore field: " + wellName);
+                } else {
+                    // we find the mapping metadata.
+                    solrDoc.addField(fieldName, meta.get(names[i]));
+                }
+            }
+        }
+
+        solrj.add(solrDoc);
+        solrj.commit();
+    }
+
+    /**
+     * quick test case for parse file.
+     */
+    public void notestParseFile() throws Exception {
 
         Metadata metadata = parseFile(conf.getProperty("test.http.input.stream.fileurl"));
 
