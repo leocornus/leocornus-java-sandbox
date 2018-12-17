@@ -128,7 +128,7 @@ public class SolrQueryTest extends TestCase {
     /**
      * test case for a simple query.
      */
-    public void notestQueryAndPost() {
+    public void testQueryAndPost() {
 
         final Map<String, String> queryParamMap = new HashMap<String, String>();
 
@@ -137,6 +137,7 @@ public class SolrQueryTest extends TestCase {
         //queryParamMap.put("fl", "id,version_schema");
         queryParamMap.put("rows", conf.getProperty("solr.simple.query.rows"));
         queryParamMap.put("sort", conf.getProperty("solr.simple.query.sort"));
+        queryParamMap.put("start", conf.getProperty("solr.simple.query.start"));
 
         MapSolrParams queryParams = new MapSolrParams(queryParamMap);
 
@@ -147,6 +148,7 @@ public class SolrQueryTest extends TestCase {
             System.out.println("Total Docs: " + documents.getNumFound());
             System.out.println("Documents returned: " + documents.size());
 
+            String fileBaseUrl = conf.getProperty("file.download.base.url");
             for(int i = 0; i < documents.size(); i ++) {
 
                 SolrDocument doc = (SolrDocument) documents.get(i);
@@ -157,6 +159,11 @@ public class SolrQueryTest extends TestCase {
                 System.out.print("Id: " + id);
                 System.out.print(", sku: " + sku);
                 System.out.println(", File Path: " + filePath);
+
+                Metadata metadata = parseFile(fileBaseUrl + filePath);
+                metadata.add("id", id);
+                metadata.add("sku", sku);
+                indexFileSolrJ(targetSolr, metadata);
             }
 
         } catch(Exception sse) {
