@@ -17,6 +17,8 @@ import junit.framework.TestSuite;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
+import com.leocorn.util.ConfigLoader;
+
 /**
  * test for the properties util class.
  */
@@ -32,7 +34,9 @@ public class InputStreamTest extends TestCase {
         super(testName);
         try {
             // load configuration file.
-            conf = loadConfig("conf/basic.properties", "conf/local.properties");
+            conf = ConfigLoader.loadConfig(getClass().getClassLoader(),
+                                           "conf/basic.properties", 
+                                           "conf/local.properties");
         } catch(IOException e) {
             e.printStackTrace();
         }
@@ -117,53 +121,4 @@ public class InputStreamTest extends TestCase {
             inputStream.close();
         }
     }
-
-    /**
-     * a utility method to load configuration files.
-     */
-    private Properties loadConfig(String baseFile, 
-                                  String localFile) throws IOException {
-
-        /**
-         * file basic.properties will have the following content:
-         */
-        //String filename = "conf/spo.properties";
-        //String localFilename = "conf/local.properties";
-        Properties retConf = new Properties();
-        InputStream input = null;
-
-        try {
-            // load the basic properties.
-            input = getClass().getClassLoader().getResourceAsStream(baseFile);
-            Properties basic = new Properties();
-            basic.load(input);
-            input.close();
-            retConf.putAll(basic);
-
-            // load the local properties.
-            input = getClass().getClassLoader().getResourceAsStream(localFile);
-            if(input != null) {
-                Properties local = new Properties();
-                local.load(input);
-                input.close();
-                retConf.putAll(local);
-            } else {
-                // null input stream means the file is not exist.
-                // just skip it!
-            }
-
-            //assertEquals("sharepoint online", retConf.getProperty("name"));
-
-            return retConf;
-        } finally{
-            if(input!=null){
-                try {
-                    input.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-
 }
