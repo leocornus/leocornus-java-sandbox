@@ -65,9 +65,13 @@ public class SolrQueryTest extends TestCase {
     public void testSimpleQuery() {
 
         final Map<String, String> queryParamMap = new HashMap<String, String>();
+
         queryParamMap.put("q", conf.getProperty("solr.simple.query"));
-        System.out.println(conf.getProperty("solr.simple.query"));
+        System.out.println("Query: " + conf.getProperty("solr.simple.query"));
         //queryParamMap.put("fl", "id,version_schema");
+        queryParamMap.put("rows", conf.getProperty("solr.simple.query.rows"));
+        queryParamMap.put("sort", conf.getProperty("solr.simple.query.sort"));
+
         MapSolrParams queryParams = new MapSolrParams(queryParamMap);
 
         try {
@@ -75,6 +79,15 @@ public class SolrQueryTest extends TestCase {
             final SolrDocumentList documents = response.getResults();
 
             System.out.println("Total Docs: " + documents.getNumFound());
+            System.out.println("Documents returned: " + documents.size());
+
+            for(int i = 0; i < documents.size(); i ++) {
+
+                SolrDocument doc = (SolrDocument) documents.get(i);
+                System.out.print("Id: " + (String) doc.getFieldValue("id"));
+                System.out.println(", File Path: " +
+                                   (String) doc.getFieldValue("source_content_file_name"));
+            }
 
         } catch(Exception sse) {
 
