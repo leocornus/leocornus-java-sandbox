@@ -60,6 +60,9 @@ public class SolrQueryTest extends TestCase {
     private SolrClient solr;
     private SolrClient targetSolr;
 
+    /**
+     * the constructor
+     */
     public SolrQueryTest (String testName) {
 
         super(testName);
