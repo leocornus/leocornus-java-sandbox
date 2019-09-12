@@ -125,7 +125,7 @@ public class SimpleAuthTest extends TestCase {
     /**
      * quick test for iteration.
      */
-    public void notestIteration() throws Exception {
+    public void testIteration() throws Exception {
 
         //String token = getAuthResult().getAccessToken();
         // starts from group folder.
@@ -151,7 +151,7 @@ public class SimpleAuthTest extends TestCase {
         throws Exception {
 
         folderCount ++;
-        System.out.println("Processing Folder: " + folderCount);
+        System.out.println("Processing Folder: " + folderCount + " - " + folderName);
 
         // get accessToken 
         if(accessToken.isEmpty()) {
@@ -230,13 +230,15 @@ public class SimpleAuthTest extends TestCase {
         // If has Files, download all files 
         JSONArray filesArray = json.getJSONArray("value");
         // logging...
-        //System.out.println("==== Downloading " + filesArray.length() + " Files");
+        System.out.println("==== Downloading " + filesArray.length() + " Files");
         for (int index = 0; index < filesArray.length(); index++) {
 
             // one file 
             JSONObject oneFile = filesArray.getJSONObject(index);
             String fileName = "NONAME";
-            if(oneFile.has("Title") && !oneFile.isNull("Title")) {
+            if(oneFile.has("Name") && !oneFile.isNull("Name")) {
+                fileName = oneFile.getString("Name");
+            } else if(oneFile.has("Title") && !oneFile.isNull("Title")) {
                 fileName = oneFile.getString("Title");
             } else {
                 System.out.println("====== Could not find file name, skip ...");
@@ -1184,7 +1186,7 @@ public class SimpleAuthTest extends TestCase {
         }
     }
 
-    public void testProcessEventQueue() throws Exception {
+    public void notestProcessEventQueue() throws Exception {
 
         processEventQueue();
     }
