@@ -248,6 +248,10 @@ public class SimpleAuthTest extends TestCase {
                 System.out.println("====== File name is empty, skip ...");
                 continue;
             }
+            if(fileName.endsWith(".zip")) {
+                System.out.println("====== skip zip file ...");
+                continue;
+            }
             // odata.id will have the full URL.
             //String fileUrl = oneItem.getString("odata.id");
             String encodedFileName = 
@@ -410,12 +414,15 @@ public class SimpleAuthTest extends TestCase {
             spoId = json.getString("OData__x005f_dlc_x005f_DocId");
             docId = spoId;
         } 
+
+        // set the project id.
         int projectId = 0;
         try {
             projectId = Integer.parseInt(json.getString("ProjectID"));
         } catch (Exception e) {
             e.printStackTrace(System.out);
         }
+
         props.put("file_spo_id", spoId);
         // set up c4c_type.
         if(folder.indexOf("Certificate") > 0) {
