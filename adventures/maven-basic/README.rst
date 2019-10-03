@@ -28,10 +28,15 @@ Create Project:
 
 mvn archetype:generate -DgroupId=com.leocorn.sandbox.maven -DartifactId=basic-tasks -DarchetypeArtifactId=maven-archetype-quickstart -DinteractiveMode=false
 
-Here are the simpl tasks:
+Here are the simple tasks:
 
 * cd basic-tasks
 * mvn compile
 * mvn test
 * mvn package
 * mvn -DskipTests package
+
+Execute single test
+-------------------
+
+* mvn -Dtest=DateTimeTest test
