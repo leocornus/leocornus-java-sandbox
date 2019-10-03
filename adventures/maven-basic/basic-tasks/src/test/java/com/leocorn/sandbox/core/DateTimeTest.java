@@ -6,12 +6,20 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Unit test for simple App.
  */
 public class DateTimeTest
     extends TestCase
 {
+
+    // class name will the logger name.
+    private static final Logger logger =
+        LoggerFactory.getLogger(DateTimeTest.class);
+
     /**
      * Create the test case
      *
@@ -38,14 +46,14 @@ public class DateTimeTest
         LocalDateTime startTime = LocalDateTime.now();
 
         // try to run 1 minutes.
-	// run forever.
+	    // run forever.
         //for(int index = 1; true; index++) {
         for(int index = 1; index < 10; index++) {
             // 
-            System.out.println("-->" + index);
+            logger.info("--> " + index);
             LocalDateTime stopTime = LocalDateTime.now().minusMinutes(1);
             int diff = startTime.compareTo(stopTime);
-            System.out.println("====>" + diff);
+            logger.info("====> " + diff);
             if(diff < 0 ) {
                 break;
             }
