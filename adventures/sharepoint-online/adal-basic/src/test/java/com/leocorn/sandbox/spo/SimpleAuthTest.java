@@ -267,13 +267,13 @@ public class SimpleAuthTest extends TestCase {
             //System.out.println(props);
 
             // check the schema version to decide to reload or not.
-            Double version = getSchemaVersion((String)props.get("id"));
-            if(version.compareTo(new Double(conf.getProperty("solr.version.schema"))) >= 0) {
-                // skip, this one,
-                skipFileCount ++;
-                System.out.println("------------ Skip File: " + skipFileCount); 
-                continue;
-            }
+            //Double version = getSchemaVersion((String)props.get("id"));
+            //if(version.compareTo(new Double(conf.getProperty("solr.version.schema"))) >= 0) {
+            //    // skip, this one,
+            //    skipFileCount ++;
+            //    System.out.println("------------ Skip File: " + skipFileCount); 
+            //    continue;
+            //}
 
             // get ready the URL for download binary.
             String fileUrl = 
@@ -1012,7 +1012,8 @@ public class SimpleAuthTest extends TestCase {
             // the == will jjjjjjjjj
             if(fieldName == null) {
                 // no mapping! add the prefix.
-                solrDoc.addField("tika_" + wellName, meta.get(names[i]));
+                //solrDoc.addField("tika_" + wellName, meta.get(names[i]));
+                // ignore all tika metadata.
             } else {
                 if(fieldName.equals("IGNORE")) {
                     System.out.println("==== Ignore field: " + wellName);
