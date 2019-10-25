@@ -407,7 +407,8 @@ public class SimpleAuthTest extends TestCase {
             // set dommy file extension.
             props.put("file_extension", "NOEXTENSION");
         }
-        props.put("file_path", folder + "/" + fileName);
+        props.put("file_path",
+                conf.getProperty("sharepoint.site") + "/" + folder + "/" + fileName);
         String spoId = "00000000";
         String docId = fileName;
         if(json.has("OData__x005f_dlc_x005f_DocId")) {
