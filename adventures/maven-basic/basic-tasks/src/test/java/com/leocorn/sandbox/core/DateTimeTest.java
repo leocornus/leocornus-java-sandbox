@@ -47,11 +47,12 @@ public class DateTimeTest
 
         // try to run 1 minutes.
 	    // run forever.
-        //for(int index = 1; true; index++) {
-        for(int index = 1; index < 10; index++) {
+        for(int index = 1; true; index++) {
+        //for(int index = 1; index < 10; index++) {
             // 
-            logger.info("--> " + index);
-            LocalDateTime stopTime = LocalDateTime.now().minusMinutes(1);
+            logger.info("index = " + index);
+            LocalDateTime stopTime = LocalDateTime.now().minusSeconds(1);
+            //LocalDateTime stopTime = LocalDateTime.now();
             int diff = startTime.compareTo(stopTime);
             logger.info("====> " + diff);
             if(diff < 0 ) {
