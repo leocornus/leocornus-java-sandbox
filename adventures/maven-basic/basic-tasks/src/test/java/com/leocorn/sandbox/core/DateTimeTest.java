@@ -11,6 +11,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Unit test for simple App.
+ *
+ * manven command:
+ * > mvn -Dtest=DateTimeTest test
  */
 public class DateTimeTest
     extends TestCase
