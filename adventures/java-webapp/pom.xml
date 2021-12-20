@@ -18,6 +18,36 @@
   </dependencies>
 
   <build>
+    <!-- finalName will override the <artifactId>-<version> format name -->
     <finalName>java-webapp</finalName>
+
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <version>3.2.2</version>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <executions>
+          <!-- dummy test to list all files in current folder. -->
+          <execution>
+            <id>list all files.</id>
+            <phase>package</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>ls</executable>
+              <arguments>
+                <argument>-la</argument>
+              </arguments>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
   </build>
 </project>
