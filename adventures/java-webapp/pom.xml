@@ -46,6 +46,22 @@
               </arguments>
             </configuration>
           </execution>
+          <!-- deploy to wildfly server by copy the war file to deployments folder -->
+          <execution>
+            <id>Wildfly deploy - copy</id>
+            <phase>package</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>cp</executable>
+              <arguments>
+                <argument>-v</argument>
+                <argument>${project.build.directory}/${project.build.finalName}.war</argument>
+                <argument>/Users/xiangchen/servers/parts/wildfly-18/standalone/deployments/</argument>
+              </arguments>
+            </configuration>
+          </execution>
         </executions>
       </plugin>
     </plugins>
