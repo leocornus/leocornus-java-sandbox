@@ -46,11 +46,10 @@
               <goal>exec</goal>
             </goals>
             <configuration>
-              <executable>git</executable>
-              <arguments>
-                <argument>describe</argument>
-                <argument>--long</argument>
-              </arguments>
+              <!--
+                maven will set the current directory to the current project folder.
+              -->
+              <executable>./git.describe</executable>
             </configuration>
           </execution>
           <!-- dummy test to list all files in current folder. -->
