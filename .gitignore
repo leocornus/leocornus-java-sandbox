@@ -1,3 +1,7 @@
+# ignore the git.describe.properties file.
+# it is a temporary file for tracking the version only.
+git.describe.properties
+
 # Compiled class file
 *.class
 
