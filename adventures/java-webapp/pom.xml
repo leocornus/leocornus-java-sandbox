@@ -35,6 +35,7 @@
       </plugin>
 
       <plugin>
+        <!-- exec plugin to execute some commands around the maven phases. -->
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
         <executions>
@@ -80,6 +81,26 @@
                 <argument>${project.build.directory}/${project.build.finalName}.war</argument>
                 <argument>/Users/xiangchen/servers/parts/wildfly-18/standalone/deployments/</argument>
               </arguments>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>properties-maven-plugin</artifactId>
+        <!-- version>1.0-alpha-2</version -->
+        <executions>
+          <execution>
+            <id>read git describe properties</id>
+            <phase>initialize</phase>
+            <goals>
+              <goal>read-project-properties</goal>
+            </goals>
+            <configuration>
+              <files>
+                <file>git.describe.properties</file>
+              </files>
             </configuration>
           </execution>
         </executions>
