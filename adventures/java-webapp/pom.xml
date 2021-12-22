@@ -38,6 +38,21 @@
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
         <executions>
+          <!-- get the output of git describe -->
+          <execution>
+            <id>git describe</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>git</executable>
+              <arguments>
+                <argument>describe</argument>
+                <argument>--long</argument>
+              </arguments>
+            </configuration>
+          </execution>
           <!-- dummy test to list all files in current folder. -->
           <execution>
             <id>list all files.</id>
