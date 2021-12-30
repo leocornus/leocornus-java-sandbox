@@ -71,7 +71,7 @@
       <plugin>
         <groupId>net.ltgt.gwt.maven</groupId>
         <artifactId>gwt-maven-plugin</artifactId>
-        <version>1.0-rc-8</version>
+        <version>1.0.0</version>
         <executions>
           <execution>
             <goals>
@@ -100,6 +100,11 @@
           <startupUrls>
             <startupUrl>StockWatcher.html</startupUrl>
           </startupUrls>
+		  <!-- code server args to customize the port. -->
+		  <codeserverArgs>
+		    <arg>-port</arg>
+			<arg>9875</arg>
+		  </codeserverArgs>
         </configuration>
       </plugin>
 
