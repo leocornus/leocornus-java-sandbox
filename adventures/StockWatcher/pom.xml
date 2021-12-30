@@ -94,7 +94,8 @@
             <arg>-XcompilerMetrics</arg>
           </compilerArgs>
           <!-- DevMode configuration -->
-          <warDir>${project.build.directory}/${project.build.finalName}</warDir>
+          <!-- warDir>${project.build.directory}/${project.build.finalName}</warDir -->
+          <launcherDir>${project.build.directory}/${project.build.finalName}</launcherDir>
           <classpathScope>compile+runtime</classpathScope>
           <!-- URL(s) that should be opened by DevMode (gwt:devmode). -->
           <startupUrls>
@@ -104,6 +105,8 @@
 		  <codeserverArgs>
 		    <arg>-port</arg>
 			<arg>9875</arg>
+		    <arg>-bindAddress</arg>
+			<arg>0.0.0.0</arg>
 		  </codeserverArgs>
         </configuration>
       </plugin>
