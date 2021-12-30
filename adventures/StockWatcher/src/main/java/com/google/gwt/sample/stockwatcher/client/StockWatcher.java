@@ -40,7 +40,7 @@ public class StockWatcher implements EntryPoint {
   public void onModuleLoad() {
     final Button sendButton = new Button("Send Again!");
     final TextBox nameField = new TextBox();
-    nameField.setText("GWT User");
+    nameField.setText("GWT Default User");
     final Label errorLabel = new Label();
 
     // We can add style names to widgets
