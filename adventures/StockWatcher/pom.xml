@@ -74,10 +74,12 @@
         <version>1.0.0</version>
         <executions>
           <execution>
-            <goals>
+            <!-- Quick test to skip this for local development mode -->
+            <!-- We should use profile for this -->
+            <!-- goals>
               <goal>compile</goal>
               <goal>test</goal>
-            </goals>
+            </goals -->
           </execution>
         </executions>
         <configuration>
