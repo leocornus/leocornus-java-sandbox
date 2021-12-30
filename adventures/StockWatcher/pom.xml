@@ -63,9 +63,10 @@
   <build>
     <!-- Output classes directly into the webapp, so that IDEs and "mvn process-classes" update them in DevMode -->
     <outputDirectory>${project.build.directory}/${project.build.finalName}/WEB-INF/classes</outputDirectory>
+    <!-- finalName will override the <artifactId>-<version> format name -->
+    <finalName>StockWatcher</finalName>
 
     <plugins>
-
       <!-- GWT Maven Plugin-->
       <plugin>
         <groupId>net.ltgt.gwt.maven</groupId>
@@ -100,6 +101,30 @@
             <startupUrl>StockWatcher.html</startupUrl>
           </startupUrls>
         </configuration>
+      </plugin>
+
+      <plugin>
+        <!-- exec plugin to execute some commands around the maven phases. -->
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <executions>
+          <!-- deploy to wildfly server by copy the war file to deployments folder -->
+          <execution>
+            <id>Wildfly deploy - copy</id>
+            <phase>package</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>cp</executable>
+              <arguments>
+                <argument>-v</argument>
+                <argument>${project.build.directory}/${project.build.finalName}.war</argument>
+                <argument>/Users/xiangchen/servers/parts/wildfly-18-build/standalone/deployments/</argument>
+              </arguments>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
 
       <!-- Skip normal test execution, we use gwt:test instead -->
