@@ -179,10 +179,10 @@
               </startupUrls>
 	          <!-- code server args to customize the port. -->
 	          <codeserverArgs>
-	            <arg>-port</arg>
-	        	<arg>9875</arg>
-	            <arg>-bindAddress</arg>
-	        	<arg>0.0.0.0</arg>
+                <arg>-port</arg>
+                <arg>9875</arg>
+                <arg>-bindAddress</arg>
+                <arg>0.0.0.0</arg>
 	          </codeserverArgs>
             </configuration>
           </plugin>
