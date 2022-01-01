@@ -60,6 +60,7 @@
     </dependency>
   </dependencies>
 
+  <!-- General build configuration -->
   <build>
     <!-- Output classes directly into the webapp, so that IDEs and "mvn process-classes" update them in DevMode -->
     <outputDirectory>${project.build.directory}/${project.build.finalName}/WEB-INF/classes</outputDirectory>
@@ -148,4 +149,45 @@
 
     </plugins>
   </build>
+
+  <!-- profiles -->
+  <profiles>
+    <profile>
+      <id>gwt-codeserver</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>net.ltgt.gwt.maven</groupId>
+            <artifactId>gwt-maven-plugin</artifactId>
+            <version>1.0.0</version>
+            <configuration>
+              <!-- module name will connect all java scource code together. -->
+              <moduleName>com.google.gwt.sample.stockwatcher.StockWatcher</moduleName>
+              <moduleShortName>StockWatcher</moduleShortName>
+              <failOnError>true</failOnError>
+              <!-- GWT compiler 2.8 requires 1.8, hence define sourceLevel here if you use
+                   a different source language for java compilation -->
+              <sourceLevel>1.8</sourceLevel>
+              <!-- DevMode configuration -->
+              <!-- warDir>${project.build.directory}/${project.build.finalName}</warDir -->
+              <!-- luncher dir config will actually generate the nocache.js file. -->
+              <launcherDir>${project.build.directory}/${project.build.finalName}</launcherDir>
+              <classpathScope>compile+runtime</classpathScope>
+              <!-- URL(s) that should be opened by DevMode (gwt:devmode). -->
+              <startupUrls>
+                <startupUrl>StockWatcher.html</startupUrl>
+              </startupUrls>
+	          <!-- code server args to customize the port. -->
+	          <codeserverArgs>
+	            <arg>-port</arg>
+	        	<arg>9875</arg>
+	            <arg>-bindAddress</arg>
+	        	<arg>0.0.0.0</arg>
+	          </codeserverArgs>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
