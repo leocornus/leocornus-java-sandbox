@@ -79,7 +79,7 @@
               <arguments>
                 <argument>-v</argument>
                 <argument>${project.build.directory}/${project.build.finalName}.war</argument>
-                <argument>/Users/xiangchen/servers/parts/wildfly-18/standalone/deployments/</argument>
+                <argument>/Users/xiangchen/servers/parts/wildfly-18-build/standalone/deployments/</argument>
               </arguments>
             </configuration>
           </execution>
