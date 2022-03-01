@@ -4,7 +4,7 @@ Simple Java classes are Java classes without **package** declaration.
 
 So we could compile and execute them by using **javac** and **java** commands.
 
-## compile and execute inside vim
+## compile and execute Java inside vim
 
 Here are command we will use:
 
@@ -37,7 +37,7 @@ The following will create shortcut **\cr** to compile and execute the java file
 in current buffer.
 ```vim
 # create shortcut \cr
-nnoremap <leader>cr :!javac -verbose %<CR> :!java -cp %:p:h %:t:r<CR>
+nnoremap <leader>cr :!javac -verbose %<CR>:!java -cp %:p:h %:t:r<CR>
 # check existing map
 :map
 ```
@@ -62,5 +62,5 @@ Just add the following line in your **.vimrc** file,
 you will have the shortcut loaded whenever you are using vim.
 ```vim
 # in file ~/.vimrc
-nnoremap <leader>cr :!javac -verbose %<CR> :!java -cp %:p:h %:t:r<CR>
+nnoremap <leader>cr :!javac -verbose %<CR>:!java -cp %:p:h %:t:r<CR>
 ```
