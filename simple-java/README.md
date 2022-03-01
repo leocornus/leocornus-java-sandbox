@@ -18,6 +18,10 @@ The **echo** command will show the values of those signs:
 
 ```vim
 :echo @%
-echo expand('%:p')
-echo expand('%:p:h')
-echo expand('%:t:r')
+:echo expand('%:p')
+:echo expand('%:p:h')
+:echo expand('%:t:r')
+```
+
+The **:p** is called filename modifier.
+Here is [a list filename modifiers](http://vimdoc.sourceforge.net/htmldoc/cmdline.html#filename-modifiers)
