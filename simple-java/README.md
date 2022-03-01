@@ -36,6 +36,7 @@ Here is a map to compile and execute Java class at once.
 The following will create shortcut **\cr** to compile and execute the java file
 in current buffer.
 ```vim
+# create shortcut \cr
 nnoremap <leader>cr :!javac -verbose %<CR> :!java -cp %:p:h %:t:r<CR>
 # check existing map
 :map
@@ -60,5 +61,6 @@ The file **.vimrc** is another option to store your chortcut.
 Just add the following line in your **.vimrc** file,
 you will have the shortcut loaded whenever you are using vim.
 ```vim
+# in file ~/.vimrc
 nnoremap <leader>cr :!javac -verbose %<CR> :!java -cp %:p:h %:t:r<CR>
 ```
