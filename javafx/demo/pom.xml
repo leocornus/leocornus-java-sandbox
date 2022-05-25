@@ -71,6 +71,19 @@
                     </execution>
                 </executions>
             </plugin>
+            <!--
+              - add the exec maven plugin to run a Java Main method
+              - to run a Java standalone application
+              - reference: https://www.baeldung.com/maven-java-main-method
+            -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.0.0</version>
+                <configuration>
+                    <mainClass>com.example.demo.HelloApplication</mainClass>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 </project>
