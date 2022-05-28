@@ -55,12 +55,21 @@ vim commands:
 ```vim
 " execute current line as bash command(s):
 :.w !bash
+:exec '!'.getline('.')
+" execute current line as bash command and read the result.
+:exec 'r!'.getline('.')
+
+" execute yanked text as bash command
+:exec '!'@"
+:exec 'r!'@"
 
 " try this.
 ls -la
 
-" set map
+" set map br: bash run
 nnoremap \br :.w !bash<CR>
+" set map rb: read bash
+nnoremap \rb :exec 'r!'.getline('.')<CR>
 
 " use this map on last command.
 
