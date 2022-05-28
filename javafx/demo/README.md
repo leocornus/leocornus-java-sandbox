@@ -7,8 +7,8 @@ Here are brief steps:
 * enable syntax highlight inside markdown file
 * using the demo JavaFX project for quick test
 * add the *exec-maven-plugin* and set the *mainClass*
-* How to execute current line under cursor as a bash commands
-* pratice the command maven commands
+* In vim: How to execute current line under cursor as a bash commands
+* From vim: pratice the common maven commands
 
 ## enable syntax hightlight inside markdown
 
