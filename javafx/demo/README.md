@@ -5,6 +5,7 @@ Here are brief steps:
 
 * using markdown for memo, create the file *README.md*
 * enable syntax highlight inside markdown file
+* set up maven
 * using the demo JavaFX project for quick test
 * add the *exec-maven-plugin* and set the *mainClass*
 * In vim: How to execute current line under cursor as a bash commands

@@ -17,3 +17,24 @@ cd ~/rd/java-sandbox; git log
 ```bash
 cd ~/rd/java-sandbox; git commit --amend --reset-author
 ```
+
+## set up maven
+
+We need set up maven to load correct Java.
+
+```bash
+# check PATH.
+echo $PATH
+
+# set up maven executable.
+
+# check maven version
+mvn --version
+
+# Sat 28 May 2022 16:16:45 EDT
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/zulu-17.jdk/Contents/Home; mvn --version
+
+# comple the javafx demo's source code.
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/zulu-17.jdk/Contents/Home; cd ~/rd/java-sandbox/javafx/demo; mvn compile
+
+```
