@@ -18,10 +18,23 @@ The sign **%:p:h** is called filename modifiers.
 The **echo** command will show the values of those signs:
 
 ```vim
+" show the relative path to current file.
 :echo @%
+" show the full path to current file.
 :echo expand('%:p')
+# show the full apth to the current folder.
 :echo expand('%:p:h')
+# the name of the current file without extension
 :echo expand('%:t:r')
+```
+
+```bash
+# ls current folder.
+# it only works for the exec format:
+# :exec '!'.getline('.')
+# it does NOT work for the .w format:
+# :.w !bash
+ls -la %:p:h
 ```
 
 Here is [a list filename modifiers](http://vimdoc.sourceforge.net/htmldoc/cmdline.html#filename-modifiers).
