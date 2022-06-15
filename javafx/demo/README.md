@@ -93,6 +93,22 @@ export JAVA_HOME=/Library/Java/JavaVirtualMachines/zulu-17.jdk/Contents/Home; ti
 
 # compile source code.
 export JAVA_HOME=/Library/Java/JavaVirtualMachines/zulu-17.jdk/Contents/Home; cd ~/rd/java-sandbox/javafx/demo; time mvn compile
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/zulu-17.jdk/Contents/Home; cd ~/rd/java-sandbox/javafx/demo; time mvn package
+
+# Error: JavaFX runtime components are missing, and are required to run this application
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/zulu-17.jdk/Contents/Home; cd ~/rd/java-sandbox/javafx/demo/target; java -jar demo-1.0-SNAPSHOT-jar-with-dependencies.jar
+# Error occurred during initialization of boot layer
+# java.lang.module.FindException: Module javafx.controls not found
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/zulu-17.jdk/Contents/Home; cd ~/rd/java-sandbox/javafx/demo/target; java --add-modules javafx.controls,javafx.fxml -jar demo-1.0-SNAPSHOT-jar-with-dependencies.jar
+# this will work!
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/zulu-17.jdk/Contents/Home; cd ~/rd/java-sandbox/javafx/demo/target; java --module-path /Users/xiangchen/Downloads/javafx-sdk-18.0.1/lib --add-modules javafx.controls,javafx.fxml -jar demo-1.0-SNAPSHOT-jar-with-dependencies.jar
+
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/zulu-17.jdk/Contents/Home; cd ~/rd/java-sandbox/javafx/demo/target; java --module-path lib --add-modules javafx.controls,javafx.fxml -jar demo-1.0-SNAPSHOT-jar-with-dependencies.jar
+
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/zulu-17.jdk/Contents/Home; cd ~/rd/java-sandbox/javafx/demo/target; java --version
+
+ls -la /Library/Java/JavaVirtualMachines/zulu-17.jdk/Contents/Home
+ls -la /Library/Java/JavaVirtualMachines/zulu-17.jdk/Contents/Home/bin
 
 # compile source code and run the app
 export JAVA_HOME=/Library/Java/JavaVirtualMachines/zulu-17.jdk/Contents/Home; cd ~/rd/java-sandbox/javafx/demo; mvn compile exec:java

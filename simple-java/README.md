@@ -21,7 +21,7 @@ The **echo** command will show the values of those signs:
 " show the relative path to current file.
 :echo @%
 " show the full path to current file.
-:echo expand('%:p')
+echo expand('%:p')
 # show the full apth to the current folder.
 :echo expand('%:p:h')
 # the name of the current file without extension
