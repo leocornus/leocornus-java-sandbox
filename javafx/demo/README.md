@@ -97,6 +97,8 @@ export JAVA_HOME=/Library/Java/JavaVirtualMachines/zulu-17.jdk/Contents/Home; cd
 
 # Error: JavaFX runtime components are missing, and are required to run this application
 export JAVA_HOME=/Library/Java/JavaVirtualMachines/zulu-17.jdk/Contents/Home; cd ~/rd/java-sandbox/javafx/demo/target; java -jar demo-1.0-SNAPSHOT-jar-with-dependencies.jar
+ls -la ~/rd/java-sandbox/javafx/demo/target
+
 # Error occurred during initialization of boot layer
 # java.lang.module.FindException: Module javafx.controls not found
 export JAVA_HOME=/Library/Java/JavaVirtualMachines/zulu-17.jdk/Contents/Home; cd ~/rd/java-sandbox/javafx/demo/target; java --add-modules javafx.controls,javafx.fxml -jar demo-1.0-SNAPSHOT-jar-with-dependencies.jar
@@ -106,6 +108,25 @@ export JAVA_HOME=/Library/Java/JavaVirtualMachines/zulu-17.jdk/Contents/Home; cd
 export JAVA_HOME=/Library/Java/JavaVirtualMachines/zulu-17.jdk/Contents/Home; cd ~/rd/java-sandbox/javafx/demo/target; java --module-path lib --add-modules javafx.controls,javafx.fxml -jar demo-1.0-SNAPSHOT-jar-with-dependencies.jar
 
 export JAVA_HOME=/Library/Java/JavaVirtualMachines/zulu-17.jdk/Contents/Home; cd ~/rd/java-sandbox/javafx/demo/target; java --version
+
+# make zip file.
+cd ~/rd/java-sandbox/javafx/demo/target; rm -rf test-game
+cd ~/rd/java-sandbox/javafx/demo/target; mkdir test-game
+cd ~/rd/java-sandbox/javafx/demo/target; cp -rv lib test-game
+cd ~/rd/java-sandbox/javafx/demo/target; cp -rv demo-1.0-SNAPSHOT-jar-with-dependencies.jar test-game
+cd ~/rd/java-sandbox/javafx/demo/target; ls -la test-game
+cd ~/rd/java-sandbox/javafx/demo/target; zip game.zip test-game/* test-game/lib/*
+
+cd ~/rd/java-sandbox/javafx/demo/target; zip game.zip lib/* demo-1.0-SNAPSHOT-jar-with-dependencies.jar
+cd ~/rd/java-sandbox/javafx/demo/target; rm game.zip
+cd ~/rd/java-sandbox/javafx/demo/target; ls -lah
+
+
+# 
+cd ~/Downloads; unzip game.zip
+cd ~/Downloads; ls -la | grep game
+cd ~/Downloads/test-game; java --module-path lib --add-modules javafx.controls,javafx.fxml -jar demo-1.0-SNAPSHOT-jar-with-dependencies.jar
+
 
 ls -la /Library/Java/JavaVirtualMachines/zulu-17.jdk/Contents/Home
 ls -la /Library/Java/JavaVirtualMachines/zulu-17.jdk/Contents/Home/bin
