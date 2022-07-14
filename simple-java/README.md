@@ -19,11 +19,11 @@ The **echo** command will show the values of those signs:
 
 ```vim
 " show the relative path to current file.
-:echo @%
+echo @%
 " show the full path to current file.
 echo expand('%:p')
 # show the full apth to the current folder.
-:echo expand('%:p:h')
+echo expand('%:p:h')
 # the name of the current file without extension
 :echo expand('%:t:r')
 ```
