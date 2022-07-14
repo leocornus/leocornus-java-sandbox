@@ -25,7 +25,7 @@ echo expand('%:p')
 # show the full apth to the current folder.
 echo expand('%:p:h')
 # the name of the current file without extension
-:echo expand('%:t:r')
+echo expand('%:t:r')
 ```
 
 ```bash
